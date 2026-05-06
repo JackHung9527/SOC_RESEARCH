@@ -35,7 +35,28 @@ The project is transitioning from a pure documentation/literature review phase i
 
 ## 今日總結
 
-### 2026/04/14
+### 2026/04/14 (updated)
+
+#### ✅ 完成項目
+- 初始化 git repository 並推送至 GitHub (JackHung9527/SOC_RESEARCH)
+- 安裝 PPTX Skill（從 anthropics/skills 下載完整 scripts、schemas、validators）
+- 安裝相依套件：markitdown[pptx]、Pillow、defusedxml、pptxgenjs、react-icons、sharp
+- 研讀論文「Implementation of SOC and SOH Estimation for Li-ion Batteries」(Lin et al., 2016)
+- 規劃 MCU 驗證方案：動態阻抗法 SOC + 投影法 SOH，搭配 IT6302 / IT8512A+ / STM32 / INA226
+- 產生 10 頁驗證計畫簡報 meeting_0416_洪大甲.pptx（PptxGenJS）並推送至 GitHub
+
+#### 🐛 問題與踩坑
+- markitdown 預設不含 PDF 支援，需額外安裝 markitdown[pdf]
+- npm 全域安裝的 pptxgenjs 需設定 NODE_PATH 才能在 node 中 require
+- bash heredoc 含中文單引號時產生 EOF 錯誤，改用 Write 工具寫入 .js 檔再執行
+
+#### 📋 明日待辦
+- 開始 MCU 韌體架構設計（STM32 + INA226 I2C 驅動）
+- 準備硬體接線與 INA226 校準實驗
+
+---
+
+### 2026/04/14 (initial)
 
 #### ✅ 完成項目
 - 盤點 SOC_RESEARCH 資料夾內所有檔案，整理檔案清單與分類
