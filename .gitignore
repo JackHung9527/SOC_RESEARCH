@@ -8,3 +8,12 @@
 
 # Stray vendored HAL clone (canonical location is MCU/soc_research_mcu/Drivers/)
 /cmsis_g0/
+
+# CubeIDE / Make build output (under the CubeIDE project subdir)
+/MCU/soc_research_mcu/build/
+
+# Editor / IDE caches (any directory)
+.vscode/
+.idea/
+*.swp
+*~
