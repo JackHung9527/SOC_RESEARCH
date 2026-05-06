@@ -16,25 +16,59 @@ Batteries」(Lin et al., 2016) MCU 驗證實驗的韌體骨架。
 
 ## 1. 資料夾結構
 
+`SOC_RESEARCH/` 是 firmware-project root；CubeIDE 專案（`.ioc` + Makefile +
+sources）依 firmware-project-builder 規約放在 `MCU/soc_research_mcu/` —
+**CubeIDE 專案資料夾名稱必須跟 .ioc 檔案的 basename 完全相同**，所以這裡多
+一層 `soc_research_mcu/`。`MCU/` 本身只是「韌體相關東西」的分類資料夾。
+`project.yaml` / `BUILD/` / `scripts/` 一律放在 root 層。
+
+每一個 driver 都各自有一個 `USER_CODE/<driver_name>/` 子資料夾（Phase 3 規約），
+不再走以前那種「app 層放 App/、IC 層放 Drivers/」的舊樹。INA226 / battery_monitor /
+soc_soh_calc 三個 pre-existing 模組已遷入 USER_CODE/ 對應子層，**source 內容完全沒動**，
+只動位置、Makefile 路徑、global_includes.h / model_set.h 的黏合。
+
 ```
-MCU/
-├── README.md                  本檔
-├── docs/
-│   └── wiring.md              詳細接線清單與訊號定義
-├── Core/
-│   ├── Inc/main.h             應用主標頭、腳位定義
-│   └── Src/main.c             應用主程式骨架
-├── App/
-│   ├── battery_monitor.h/.c   電池取樣排程與資料快取
-│   └── soc_soh_calc.h/.c      SOC/SOH 演算法骨架（待補）
-└── Drivers/
-    └── INA226/
-        ├── ina226.h           暫存器、列舉、API 宣告
-        └── ina226.c           HAL I2C 實作
+SOC_RESEARCH/                              ← firmware-project root
+├── project.yaml                           firmware-project-builder 單一事實來源
+├── project.yaml.bak                       (agent 寫入前自動備份)
+├── BUILD/                                 發佈用 .elf / .bin / .hex（由 make publish 投放）
+├── scripts/
+│   └── flash_and_verify.py                openocd flash + UART 60 s 驗證
+├── DOC/  INST/  TEST/  CLAUDE.md          研究文件 / 量測紀錄 / 專案說明
+└── MCU/                                   ← 分類資料夾（裝韌體相關東西）
+    ├── README.md                          本檔
+    ├── docs/
+    │   └── wiring.md                      詳細接線清單與訊號定義
+    └── soc_research_mcu/                  ★ CubeIDE 專案根目錄 (cubeide.project_dir)
+        ├── soc_research_mcu.ioc           CubeMX-compatible 腳位/周邊配置（手寫）
+        ├── Makefile                       PUBLISH_DIR = ../../BUILD（多一層）
+        ├── STM32G071RBTX_FLASH.ld         linker script
+        ├── Core/
+        │   ├── Inc/main.h                 HAL handle extern + 腳位 label
+        │   └── Src/
+        │       ├── main.c                 HAL_Init + SystemClock + MX_*_Init + once() + while(loop())
+        │       ├── stm32g0xx_it.c         ISR：SysTick / TIM6 / USART2 / EXTI
+        │       └── syscalls.c             newlib stub（_write 已交給 uart_debug）
+        ├── USER_CODE/                     stm32-proj-init 框架（手動等效）
+        │   ├── global_includes.h          統一 include 入口；USER_DRIVERS marker 內列出所有 driver header
+        │   ├── model_set.h                全專案參數（per-driver MODEL_SET_<NAME> 區塊）
+        │   ├── softwareTim.[ch]           100 µs base tick 計數器（TIM6 ISR 唯一寫入者）
+        │   ├── userCode.[ch]              once() / loop() — 含 boot banner + 1Hz heartbeat
+        │   ├── uart_debug/                stm32-uart-scaffold 產出（USART2, IT-driven, printf retarget）
+        │   ├── i2c_bus/                   stm32-i2c-scaffold 產出（I2C1, sync HAL_I2C_Mem 抽象）
+        │   ├── ina226/                    ★ pre-existing IC driver，遷入 USER_CODE/，內容未動
+        │   ├── battery_monitor/           ★ pre-existing app 層，遷入 USER_CODE/，內容未動
+        │   └── soc_soh_calc/              ★ pre-existing 演算法 stub，遷入 USER_CODE/，內容未動
+        ├── Drivers/
+        │   ├── CMSIS/                     vendored from STM32CubeG0 v1.6.2
+        │   └── STM32G0xx_HAL_Driver/      同上 — 只剩 HAL/CMSIS（INA226 已搬到 USER_CODE/ina226/）
+        └── build/                         arm-none-eabi-gcc 中間物 (.o/.d/.lst/.elf/.map) — gitignored
 ```
 
-CubeMX 自動生成的 HAL Drivers/、startup_*.s、linker script、
-`stm32g0xx_hal_conf.h`、`Makefile` 仍需由 STM32CubeIDE 建立 — 詳第 4 節。
+整體靠 `firmware-project-builder` agent 編排，狀態寫在 root 層的
+`SOC_RESEARCH/project.yaml`。INA226 driver、battery_monitor、soc_soh_calc 三者
+原始碼維持原樣，由 USER_CODE/userCode.c 的 once()/loop() 呼叫進來；不再由
+main.c 直接呼叫。
 
 ---
 
@@ -143,31 +177,37 @@ CubeMX 自動生成的 HAL Drivers/、startup_*.s、linker script、
 
 ## 4. 編譯與燒錄
 
-本骨架不含 CubeMX 自動產生檔，使用前需先在 STM32CubeIDE：
-
-1. 建立 STM32G071RB 專案 (Empty Makefile project)
-2. 啟用以下周邊：
-   - **I2C1**：PB8/PB9，速度 Fast Mode 400 kHz
-   - **USART2**：PA2/PA3，115200 baud（debug log）
-   - **GPIO**：PA5 輸出（LED）、PA10 輸入（INA226 ALERT, EXTI）
-3. 將本資料夾 `Drivers/INA226/`、`App/` 加入 `Makefile` 的 C_SOURCES 與 INC_DIRS
-4. 把 `Core/Src/main.c` 內的 `INA226_Init()`、`BatteryMonitor_Init()` 等
-   呼叫貼到 CubeMX 生成的 main.c 對應 USER CODE 區塊
-
-編譯與燒錄指令（搭配本工作站既有 stm32-build-flash skill）：
+本專案在 Linux/Raspberry Pi host 上以 `arm-none-eabi-gcc` + `openocd` 操作，
+不需要 STM32CubeIDE GUI；`.ioc` 為手寫但與 CubeMX 6.10+ 相容。
 
 ```bash
-make -j4
-STM32_Programmer_CLI -c port=SWD -d build/SOC_RESEARCH.hex -rst
+# 編譯 / 燒錄在 CubeIDE 工作區裡跑（也可從 root 用 make -C MCU/soc_research_mcu）：
+cd SOC_RESEARCH/MCU/soc_research_mcu
+make                    # arm-none-eabi-gcc 12.2 → build/soc_research_mcu.{elf,bin,hex}
+                        # + 自動 publish 到 ../../BUILD/（= SOC_RESEARCH/BUILD/）
+make flash              # openocd via on-board ST-LINK/V2.1
+
+# 驗證腳本在 firmware-project root 跑（會自動 cwd 到 MCU/soc_research_mcu/ 跑 make flash）：
+cd SOC_RESEARCH
+python3 scripts/flash_and_verify.py   # flash + 驗 boot banner + 60 s heartbeat 計時
 ```
+
+韌體運作：
+- `main()` 只做 HAL_Init / SystemClock / MX_GPIO/USART2/I2C1/TIM6 init，然後 `once()` + `while(loop())`。
+- 100 µs 基底由 **TIM6** 提供，`HAL_TIM_PeriodElapsedCallback` 在 `USER_CODE/softwareTim.c`
+  唯一定義，只把 `g_softWareTimCnt` 加一（不做 UART、不做應用工作）。
+- 1 Hz 心跳走 `softWareTimTick_100us(Period=10000)` 在 `userCode.c::loop()` 排程，
+  印 alive 行 + 翻 LED；INA226 在線時順便取樣印 V/I/P。
+- 開機 banner 由 `once()` 印一次（`uart_debug_printf`），sensor 不在不會卡死。
 
 ---
 
 ## 5. 後續工作（依優先序）
 
-- [ ] CubeMX 生成 HAL skeleton 並併入此資料夾
-- [ ] INA226 上電自檢與 Manufacturer ID 驗證在 main loop 跑通
-- [ ] UART 周期 log 量測值（電壓、電流、功率）
+- [x] HAL skeleton 從 STM32CubeG0 v1.6.2 vendored 進 Drivers/
+- [x] USER_CODE 框架 + uart_debug + i2c_bus driver 透過 firmware-project-builder skill 鏈導入
+- [x] UART 1 Hz 周期 log 量測值（i2c idle / ina absent 路徑已驗證 60 s monotonic）
+- [ ] INA226 sensor 接上後，驗證 `[Ns] alive V=...mV I=...mA P=...mW i2c=ok ina=present` 路徑
 - [ ] **Pending**：INA226 Current_LSB 點對點校正（搭配 IT6302 + 標準電流表）
 - [ ] **Pending**：動態阻抗法電流脈衝注入（IT8512A+ List Mode 控制）
 - [ ] **Pending**：投影法 SOH 容量積分追蹤

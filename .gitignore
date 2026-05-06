@@ -1,1 +1,10 @@
 .claude/
+
+# firmware-project artefacts (root-level publish dir; populated by MCU/Makefile)
+/BUILD/
+
+# project.yaml audit trail (audit lives in git history, not committed .bak)
+*.bak
+
+# Stray vendored HAL clone (canonical location is MCU/soc_research_mcu/Drivers/)
+/cmsis_g0/

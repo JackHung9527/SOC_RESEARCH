@@ -1,0 +1,222 @@
+# SOC_RESEARCH MCU firmware project — single source of truth.
+# Maintained by firmware-project-builder agent.
+schema: firmware-project/v1
+
+project:
+  name: soc_research_mcu
+  created: 2026-05-06
+  description: STM32G071RB + INA226 platform for SOC/SOH validation (Lin et al., 2016)
+
+mcu:
+  cpn: STM32G071RBTx
+  family: STM32G0
+  package: LQFP64
+  sysclk_mhz: 64                      # HSI16 → PLL → 64 MHz; APB1 = 64 MHz
+
+board:
+  name: NUCLEO-G071RB
+  programmer: ST-LINK/V2.1 (on-board)
+  vcp_device: /dev/ttyACM2            # ttyACM0/1 are reserved for IT6302/IT8512A+
+
+# Toolchain (Raspberry Pi host, no CubeIDE/CubeMX/CubeProgrammer GUI available).
+toolchain:
+  compiler: /usr/bin/arm-none-eabi-gcc   # 12.2.1
+  make: /usr/bin/make
+  flasher: /usr/bin/openocd              # 0.12.0
+  flash_cmd: openocd -f interface/stlink.cfg -f target/stm32g0x.cfg -c "program MCU/soc_research_mcu/build/soc_research_mcu.elf verify reset exit"
+  hal_source:
+    method: git_clone
+    repo: https://github.com/STMicroelectronics/STM32CubeG0.git
+    tag: v1.6.2
+    local_path: ./MCU/soc_research_mcu/Drivers/STM32CubeG0   # vendored HAL/CMSIS
+
+cubeide:
+  project_name: soc_research_mcu
+  project_dir: ./MCU/soc_research_mcu
+  ioc_file:    ./MCU/soc_research_mcu/soc_research_mcu.ioc   # hand-written CubeMX-compatible plain text
+  build_dir:   ./MCU/soc_research_mcu/build
+
+build_out_dir: ./BUILD
+
+state:
+  pin_planner: done                  # .ioc hand-authored to spec; TIM6 added 2026-05-07
+  proj_init: done                    # USER_CODE framework installed via manual-equivalent
+  drivers_scaffolded:
+    - uart_debug                     # stm32-uart-scaffold (skill exit 0)
+    - i2c_bus                        # stm32-i2c-scaffold  (skill exit 0)
+    - ina226                         # pre-existing, relocated to USER_CODE, source unchanged
+    - battery_monitor                # pre-existing, relocated to USER_CODE, source unchanged
+    - soc_soh_calc                   # pre-existing, relocated to USER_CODE, source unchanged
+  last_build: 2026-05-07T01:47:00
+  last_flash: 2026-05-07T01:48:00
+  notes:
+    proj_init_method: manual-equivalent
+    proj_init_reason: |
+      stm32-proj-init skill assumes a CubeMX-generated main.c with the standard
+      "USER CODE BEGIN/END" markers and a fresh TIM6 slot. Our hand-authored
+      main.c had neither (no markers; existing TIM2 1Hz callback would collide
+      with softwareTim.c's HAL_TIM_PeriodElapsedCallback). The skill's USER_CODE
+      tree was copied verbatim and main.c was rewritten by hand to (1) drop TIM2,
+      (2) add TIM6 100us base tick wired to softwareTim.c, (3) reduce main() to
+      HAL_Init + SystemClock + MX_*_Init + once() + loop(). Output is structurally
+      identical to what the skill would have produced on a clean CubeMX project.
+    integration_notes: |
+      - HAL_TIM_PeriodElapsedCallback is owned exclusively by USER_CODE/softwareTim.c
+        (counts g_softWareTimCnt only — no UART, no app work in the 100us ISR).
+      - 1 Hz heartbeat scheduled via softWareTimTick_100us(Period=10000) inside
+        USER_CODE/userCode.c::loop().
+      - printf retarget owned by USER_CODE/uart_debug/uart_debug.c::_write;
+        Core/Src/syscalls.c had its _write removed to avoid multiple definition.
+      - Makefile gained -u _printf_float so vsnprintf("%.1f", ...) works under
+        nano.specs.
+
+drivers:
+  uart_debug:
+    type: uart
+    instance: USART2
+    pins: { tx: PA2, rx: PA3 }
+    baud: 115200
+    multi_instance: false
+    period_ms: null
+    tx_buf_size: 512
+    rx_line_buffer: true
+    rx_line_size: 128
+    printf_retarget: true
+    isr_hook: USART2_IRQHandler -> HAL_UART_IRQHandler
+    notes: |
+      Nucleo VCP routed to ST-LINK; appears as /dev/ttyACM2 on the host.
+      IT-driven TX ring buffer + RX line buffer. Owns _write retarget.
+  i2c_bus:
+    type: i2c
+    instance: I2C1
+    pins: { scl: PB8, sda: PB9 }
+    speed_hz: 400000
+    pull_up_kohm: 4.7
+    multi_instance: false
+    period_ms: null
+    timeout_ms: 100
+    async_mode: false
+    notes: |
+      INA226 ALERT routed to PA10 EXTI (active-low, pull-up).
+      Sync-only HAL_I2C_Mem_* abstraction. The pre-existing INA226 driver
+      bypasses this bus driver and talks to hi2c1 directly — that is intentional
+      and unchanged in this refactor.
+  ina226:
+    type: generic
+    multi_instance: false
+    period_ms: 1000                  # sampled from 1 Hz heartbeat in userCode.c::loop()
+    notes: |
+      Pre-existing INA226 driver. Relocated from MCU/Drivers/INA226/ to
+      MCU/soc_research_mcu/USER_CODE/ina226/. Source unchanged. Still uses
+      &hi2c1 HAL handle directly (does NOT route through i2c_bus driver).
+      Migration to i2c_bus is a follow-up. I2C address 0x40 (A0=A1=GND).
+  battery_monitor:
+    type: generic
+    multi_instance: false
+    period_ms: 1000
+    notes: |
+      Pre-existing battery_monitor app layer. Relocated from MCU/App/ to
+      MCU/soc_research_mcu/USER_CODE/battery_monitor/. Source unchanged.
+      Owns the INA226 handle and exposes a 1 Hz sample API consumed by
+      userCode.c::loop().
+  soc_soh_calc:
+    type: generic
+    multi_instance: false
+    period_ms: 1000
+    notes: |
+      Pre-existing SOC/SOH algorithm stub. Relocated from MCU/App/ to
+      MCU/soc_research_mcu/USER_CODE/soc_soh_calc/. Source unchanged.
+      Algorithm fill is pending INA226 hardware connection and bench
+      calibration (see open_questions and `algorithm.status`).
+
+build:
+  toolchain: arm-none-eabi-gcc 12.2.1
+  optimization: -Og -g
+  elf_size:
+    text: 47900
+    data: 488
+    bss: 4152
+    total: 52540                     # ~41% of 128 KB Flash, ~11% of 36 KB RAM
+  warnings: 10                       # all from skill-supplied USER_CODE/model_set.h template:
+                                     #   "/*" within comment (cosmetic, lines 35/37)
+  ld_flags_added: ["-u _printf_float"]
+  artifacts: ["BUILD/soc_research_mcu.elf",
+              "BUILD/soc_research_mcu.bin",
+              "BUILD/soc_research_mcu.hex"]
+
+verify_run:
+  date: 2026-05-07T01:48:00
+  vcp: /dev/ttyACM2
+  capture_seconds: 60
+  results:
+    banner_present: PASS
+    clock_peripheral_line: PASS
+    ina226_absent_graceful_warn: PASS
+    i2c1_idle_warn: PASS
+    heartbeat_lines: 60
+    heartbeat_avg_interval_ms: 996.7
+    heartbeat_worst_jitter_ms: 4.0
+    heartbeat_monotonic: PASS
+    overall: PASS
+  layout_refactor:
+    date: 2026-05-07T02:00:00
+    note: |
+      Final layout per firmware-project-builder convention. The CubeIDE
+      project folder name MUST equal the .ioc base name; therefore the
+      CubeIDE project lives in MCU/soc_research_mcu/, with MCU/ acting as
+      a category folder above it. Each driver sits in its own
+      USER_CODE/<name>/ subfolder; ina226 / battery_monitor / soc_soh_calc
+      were relocated here from the previous flat MCU/Drivers/INA226/ and
+      MCU/App/ layout (sources unchanged — only relocated and rewired via
+      USER_CODE/global_includes.h + model_set.h + Makefile -I/-c paths).
+
+        SOC_RESEARCH/                      <- firmware-project root
+        ├── project.yaml                   single source of truth
+        ├── project.yaml.bak               written before each agent edit
+        ├── BUILD/                         publish dir (.elf/.bin/.hex)
+        ├── scripts/                       host-side automation
+        ├── MCU/                           category folder (firmware-related)
+        │   ├── README.md                  (this file's tree)
+        │   ├── docs/                      misc docs
+        │   └── soc_research_mcu/          ★ CubeIDE project root
+        │       ├── soc_research_mcu.ioc
+        │       ├── Makefile               PUBLISH_DIR = ../../BUILD
+        │       ├── STM32G071RBTX_FLASH.ld
+        │       ├── Core/                  HAL boilerplate
+        │       ├── Drivers/               CMSIS + STM32G0xx_HAL_Driver only
+        │       │                          (INA226 moved out to USER_CODE)
+        │       ├── USER_CODE/
+        │       │   ├── global_includes.h  USER_DRIVERS marker
+        │       │   ├── model_set.h        MODEL_SET_<DRIVER> markers
+        │       │   ├── softwareTim.{c,h}
+        │       │   ├── userCode.{c,h}
+        │       │   ├── uart_debug/
+        │       │   ├── i2c_bus/
+        │       │   ├── ina226/            ★ relocated, source unchanged
+        │       │   ├── battery_monitor/   ★ relocated, source unchanged
+        │       │   └── soc_soh_calc/      ★ relocated, source unchanged
+        │       └── build/                 gitignored intermediate objects
+        └── DOC/  INST/  TEST/  CLAUDE.md
+
+      Re-verified end-to-end after the wrap+relocate:
+        make -C MCU/soc_research_mcu clean && make -C MCU/soc_research_mcu
+          -> 0 error / 10 warn (skill model_set.h cosmetic, pre-existing)
+        make -C MCU/soc_research_mcu flash       -> Verified OK
+        python3 scripts/flash_and_verify.py      -> PASS
+
+algorithm:
+  module: MCU/soc_research_mcu/USER_CODE/soc_soh_calc/soc_soh_calc.{c,h}
+  status: pending_calibration
+  notes: |
+    dV/dI dynamic-impedance SOC and projection-method SOH skeletons exist but
+    require empirical Z-SOC LUT and temperature-compensation coefficients.
+    Boot-up + 1 Hz tick + UART log + I2C scan are validated first; algorithm
+    work resumes after INA226 hardware is wired and bench-calibrated.
+
+open_questions:
+  - id: rshunt_value
+    text: README claims Rshunt = 10 mΩ; physical resistor not yet selected/sourced.
+    status: TODO
+  - id: current_lsb_calibration
+    text: Current_LSB needs point-to-point calibration vs Keithley once hardware ready.
+    status: TODO
