@@ -1,9 +1,0 @@
-# MCU/.gitignore — paths relative to MCU/ (the CubeIDE project subdir).
-# Build artefacts
-/build/
-
-# Editor / IDE
-.vscode/
-.idea/
-*.swp
-*~
