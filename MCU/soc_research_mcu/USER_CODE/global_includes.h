@@ -41,6 +41,7 @@
 #include "i2c_bus/i2c_bus.h"
 #include "ina226/ina226.h"
 #include "battery_monitor/battery_monitor.h"
+#include "ina_cal/ina_cal.h"
 #include "soc_soh_calc/soc_soh_calc.h"
 /* === USER_DRIVERS END === */
 

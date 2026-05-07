@@ -69,6 +69,17 @@
 /* === MODEL_SET_BATTERY_MONITOR END === */
 
 
+/* === MODEL_SET_INA_CAL BEGIN === */
+/* INA226 N-point linear-interp current calibration storage.
+ *   - Storage: last flash page (G071RB page 63 @ 0x0801F800, 2 KB).
+ *   - Up to INA_CAL_MAX_POINTS = 16 calibration points.
+ *   - Record protected by 'INAC' magic + version + CRC32.
+ *   - apply() is identity passthrough until a valid record is loaded.
+ * Knobs are compile-time (INA_CAL_MAX_POINTS in ina_cal.h); no runtime
+ * tunables exposed here yet. */
+/* === MODEL_SET_INA_CAL END === */
+
+
 /* === MODEL_SET_SOC_SOH_CALC BEGIN === */
 /* Pre-existing SOC/SOH algorithm stub — empirical Z-SOC LUT and temperature
  * compensation coefficients are not yet defined; algorithm is pending the

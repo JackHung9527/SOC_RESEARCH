@@ -54,6 +54,8 @@ void once(void)
 	 *       其他 driver init 依 scaffold 順序追加。 */
 	uart_debug_init();
 	i2c_bus_init();
+	ina_cal_init();
+	ina_cal_uart_attach();
 	/* === USER_INIT_CALLS END === */
 
 	/* ---- one-shot boot banner (grep-able by SCRIPTS/flash_and_verify.py) ---- */
@@ -109,11 +111,24 @@ void loop(void)
 			battery_sample_t snap;
 			if (battery_monitor_get_latest(&snap))
 			{
-				uart_debug_printf("[%lus] alive V=%.1fmV I=%.1fmA P=%.1fmW i2c=ok ina=present\r\n",
-				                  (unsigned long)s_seconds,
-				                  (double)snap.bus_v_mv,
-				                  (double)snap.current_ma,
-				                  (double)snap.power_mw);
+				float i_cal = ina_cal_apply(snap.current_ma);
+				if (ina_cal_is_valid())
+				{
+					uart_debug_printf("[%lus] alive V=%.1fmV I=%.1fmA Ical=%.1fmA P=%.1fmW i2c=ok ina=present cal=on\r\n",
+					                  (unsigned long)s_seconds,
+					                  (double)snap.bus_v_mv,
+					                  (double)snap.current_ma,
+					                  (double)i_cal,
+					                  (double)snap.power_mw);
+				}
+				else
+				{
+					uart_debug_printf("[%lus] alive V=%.1fmV I=%.1fmA P=%.1fmW i2c=ok ina=present cal=off\r\n",
+					                  (unsigned long)s_seconds,
+					                  (double)snap.bus_v_mv,
+					                  (double)snap.current_ma,
+					                  (double)snap.power_mw);
+				}
 			}
 			else
 			{
