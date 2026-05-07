@@ -34,6 +34,7 @@ C_SOURCES =                                                       \
   USER_CODE/i2c_bus/i2c_bus.c                                     \
   USER_CODE/ina226/ina226.c                                       \
   USER_CODE/battery_monitor/battery_monitor.c                     \
+  USER_CODE/ina_cal/ina_cal.c                                     \
   USER_CODE/soc_soh_calc/soc_soh_calc.c                           \
   Drivers/CMSIS/Device/ST/STM32G0xx/Source/Templates/system_stm32g0xx.c \
   Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal.c                \

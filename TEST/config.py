@@ -1,11 +1,21 @@
 """Test bench configuration.
 
-All experiment parameters live here so phase scripts stay short.
-Match values to meeting_0416 plan; adjust per battery batch as needed.
+Battery-specific values now live in TEST/profiles.py (selected via
+`python3 TEST/select_battery.py`). This file holds bench-wide knobs:
+serial ports, baud, default phase parameters, dead-time between
+charge/discharge.
+
+Backward compatibility: legacy code that imports BATTERY / SAFETY from
+this module will receive values derived from the active profile (if one
+has been selected). If no profile is selected, BATTERY is None and
+SAFETY uses chemistry-agnostic conservative defaults — phase scripts
+should refuse to run in that state.
 """
 from __future__ import annotations
 
 from dataclasses import dataclass
+
+from TEST.profiles import try_load_active_profile
 
 
 # --- Serial port mapping (confirmed by *IDN? probe on 2026-05-06) ---
@@ -14,30 +24,17 @@ PORT_PSU = "/dev/ttyACM1"    # IT6302  (DC power supply)
 BAUD = 9600
 
 
-# --- Battery under test: 18650, per meeting_0416 slide 5 ---
-@dataclass(frozen=True)
-class BatterySpec:
-    name: str = "18650-Sample"
-    q_rated_mAh: float = 2150.0   # nominal capacity
-    v_nominal: float = 3.7
-    v_max: float = 4.20           # full-charge / hard upper cutoff
-    v_min: float = 2.75           # discharge / hard lower cutoff
-    v_charge_cv: float = 4.20     # CV target during charge
-    i_charge_cc: float = 1.075    # 0.5 C charge current  (A)
-    i_charge_term: float = 0.05   # CV cut-off current     (A)
-    i_discharge_cc: float = 1.075 # 0.5 C baseline discharge current (A)
-
-
-BATTERY = BatterySpec()
+# --- Active battery profile -----------------------------------------------
+# None if user hasn't run select_battery.py yet.
+BATTERY = try_load_active_profile()
 
 
 # --- Hard safety envelope (instrument enforces these no matter what) ---
 @dataclass(frozen=True)
 class SafetyLimits:
-    v_hard_high: float = 4.25     # abort if V exceeds this
-    v_hard_low: float = 2.70      # abort if V drops below this
-    i_hard_high: float = 4.30     # abort if |I| exceeds this
+    i_hard_high: float = 4.30     # abort if |I| exceeds this (wiring limit)
     sample_period_s: float = 1.0  # main loop period (paper: 1 Hz)
+    deadtime_s: float = 5.0       # mandatory rest after every output disable
 
 
 SAFETY = SafetyLimits()
@@ -65,3 +62,14 @@ PHASE3_PULSE_OFF_S = 30
 # --- Phase 4 aging cycle ---
 PHASE4_CYCLES_PER_CHECKPOINT = 50     # record SOH every N cycles
 PHASE4_TARGET_CYCLES = 500
+
+
+def require_battery():
+    """Phase scripts call this first — fails loudly if no profile selected."""
+    if BATTERY is None:
+        raise SystemExit(
+            "ERROR: no active battery profile.\n"
+            "  Run: python3 TEST/select_battery.py\n"
+            "  to pick a cell before running any test."
+        )
+    return BATTERY
