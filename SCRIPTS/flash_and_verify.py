@@ -24,7 +24,7 @@ import serial
 VCP = "/dev/ttyACM2"
 BAUD = 115200
 CAPTURE_SECONDS = 60.0
-# scripts/ lives at the firmware-project root (SOC_RESEARCH/scripts/).
+# SCRIPTS/ lives at the firmware-project root (SOC_RESEARCH/SCRIPTS/).
 # The CubeIDE project (Makefile, sources, .ioc) is at
 # SOC_RESEARCH/MCU/soc_research_mcu/ — MCU/ is a category folder above the
 # CubeIDE root, whose name must match the .ioc base name.

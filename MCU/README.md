@@ -20,7 +20,7 @@ Batteries」(Lin et al., 2016) MCU 驗證實驗的韌體骨架。
 sources）依 firmware-project-builder 規約放在 `MCU/soc_research_mcu/` —
 **CubeIDE 專案資料夾名稱必須跟 .ioc 檔案的 basename 完全相同**，所以這裡多
 一層 `soc_research_mcu/`。`MCU/` 本身只是「韌體相關東西」的分類資料夾。
-`project.yaml` / `BUILD/` / `scripts/` 一律放在 root 層。
+`project.yaml` / `BUILD/` / `SCRIPTS/` 一律放在 root 層（INV-5：第一層全大寫）。
 
 每一個 driver 都各自有一個 `USER_CODE/<driver_name>/` 子資料夾（Phase 3 規約），
 不再走以前那種「app 層放 App/、IC 層放 Drivers/」的舊樹。INA226 / battery_monitor /
@@ -32,8 +32,9 @@ SOC_RESEARCH/                              ← firmware-project root
 ├── project.yaml                           firmware-project-builder 單一事實來源
 ├── project.yaml.bak                       (agent 寫入前自動備份)
 ├── BUILD/                                 發佈用 .elf / .bin / .hex（由 make publish 投放）
-├── scripts/
+├── SCRIPTS/
 │   └── flash_and_verify.py                openocd flash + UART 60 s 驗證
+├── TOOLS/                                 pptx generator + QA helpers
 ├── DOC/  INST/  TEST/  CLAUDE.md          研究文件 / 量測紀錄 / 專案說明
 └── MCU/                                   ← 分類資料夾（裝韌體相關東西）
     ├── README.md                          本檔
@@ -189,7 +190,7 @@ make flash              # openocd via on-board ST-LINK/V2.1
 
 # 驗證腳本在 firmware-project root 跑（會自動 cwd 到 MCU/soc_research_mcu/ 跑 make flash）：
 cd SOC_RESEARCH
-python3 scripts/flash_and_verify.py   # flash + 驗 boot banner + 60 s heartbeat 計時
+python3 SCRIPTS/flash_and_verify.py   # flash + 驗 boot banner + 60 s heartbeat 計時
 ```
 
 韌體運作：

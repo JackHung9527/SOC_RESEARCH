@@ -56,7 +56,7 @@ void once(void)
 	i2c_bus_init();
 	/* === USER_INIT_CALLS END === */
 
-	/* ---- one-shot boot banner (grep-able by scripts/flash_and_verify.py) ---- */
+	/* ---- one-shot boot banner (grep-able by SCRIPTS/flash_and_verify.py) ---- */
 	uart_debug_printf("\r\n=== SOC_RESEARCH STM32G071RB boot ===\r\n");
 	uart_debug_printf("Build: USER_CODE framework (uart_debug + i2c_bus)\r\n");
 	uart_debug_printf("SYSCLK=64MHz  USART2=115200  I2C1=400kHz  TIM6=100us\r\n");

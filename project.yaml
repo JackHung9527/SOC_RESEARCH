@@ -174,7 +174,8 @@ verify_run:
         ├── project.yaml                   single source of truth
         ├── project.yaml.bak               written before each agent edit
         ├── BUILD/                         publish dir (.elf/.bin/.hex)
-        ├── scripts/                       host-side automation
+        ├── SCRIPTS/                       host-side automation
+        ├── TOOLS/                         pptx generator + QA helpers
         ├── MCU/                           category folder (firmware-related)
         │   ├── README.md                  (this file's tree)
         │   ├── docs/                      misc docs
@@ -202,7 +203,7 @@ verify_run:
         make -C MCU/soc_research_mcu clean && make -C MCU/soc_research_mcu
           -> 0 error / 10 warn (skill model_set.h cosmetic, pre-existing)
         make -C MCU/soc_research_mcu flash       -> Verified OK
-        python3 scripts/flash_and_verify.py      -> PASS
+        python3 SCRIPTS/flash_and_verify.py      -> PASS
 
 algorithm:
   module: MCU/soc_research_mcu/USER_CODE/soc_soh_calc/soc_soh_calc.{c,h}

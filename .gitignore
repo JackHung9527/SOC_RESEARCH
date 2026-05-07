@@ -3,6 +3,10 @@
 # firmware-project artefacts (root-level publish dir; populated by MCU/Makefile)
 /BUILD/
 
+# TOOLS QA scratch outputs (generated PNGs / temp pptx for visual review)
+/TOOLS/pptx/qa/
+/TOOLS/pptx/__pycache__/
+
 # project.yaml audit trail (audit lives in git history, not committed .bak)
 *.bak
 
