@@ -1,12 +1,12 @@
 {
-  "name": "18650 Li-ion NMC, 2150 mAh (Samsung INR18650-22P-class)",
+  "name": "custom NMC, 2000 mAh (datasheet max discharge 4 A / 2C)",
   "chemistry": "li-ion-nmc",
-  "q_rated_mAh": 2150.0,
+  "q_rated_mAh": 2000.0,
   "v_charge_cv": 4.2,
   "v_charge_cutoff": 4.2,
-  "i_charge_cc": 1.075,
+  "i_charge_cc": 1.0,
   "i_charge_term": 0.05,
-  "v_discharge_cutoff": 2.75,
-  "i_discharge_cc": 1.075,
+  "v_discharge_cutoff": 2.5,
+  "i_discharge_cc": 1.0,
   "v_nominal": 3.7
 }

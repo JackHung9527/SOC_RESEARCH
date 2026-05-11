@@ -1,0 +1,21 @@
+{
+  "schema": "ina226-cal-validation/v1",
+  "date": "2026-05-07",
+  "lut_source": "TEST/data/calibration_ina226.json",
+  "direction": "discharge",
+  "method": "Load CC pull at non-calibration setpoints; compare LUT prediction vs Load.MEAS:CURR? ground truth",
+  "settle_s": 3.0,
+  "sample_s": 4.0,
+  "points": [
+    {"target_A": 0.300, "load_ref_mA": 298.31, "mcu_raw_mA": 340.20, "lut_predict_mA": 298.10, "error_mA": -0.21},
+    {"target_A": 0.750, "load_ref_mA": 748.78, "mcu_raw_mA": 851.32, "lut_predict_mA": 748.56, "error_mA": -0.21},
+    {"target_A": 1.250, "load_ref_mA": 1248.46, "mcu_raw_mA": 1418.52, "lut_predict_mA": 1248.29, "error_mA": -0.17},
+    {"target_A": 1.750, "load_ref_mA": 1748.61, "mcu_raw_mA": 1986.30, "lut_predict_mA": 1748.44, "error_mA": -0.16}
+  ],
+  "summary": {
+    "max_abs_error_mA": 0.21,
+    "max_pct_error_of_largest_target": 0.012,
+    "pre_cal_error_pct": 13.6,
+    "improvement_factor": 1134
+  }
+}

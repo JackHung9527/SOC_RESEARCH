@@ -35,6 +35,28 @@ The project is transitioning from a pure documentation/literature review phase i
 
 ## 今日總結
 
+### 2026/05/11
+
+#### ✅ 完成項目
+- 完成 INA226 多點線性內插校正：充放電各 7 點（0/0.05/0.1/0.5/1.0/1.5/2.0 A），全範圍誤差 < 0.21 mA（< 1‰）
+- 把 14 點 LUT 經 UART CLI 燒進 STM32 flash page 63（0x0801_F800），開機自動載入，heartbeat 多吐 `cal=on` 與 `Ical=`
+- 撰寫校正紀錄文件：`DOC/校正紀錄/2026-05-07_ina226_calibration.md` + `2026-05-07_ina226_validation.json`（4 點內插驗證資料）
+- 設計並實作跨輪測試協定 `TEST/round_runner.py`：一輪 = 充 0.5C →休30m →放 {0.5/1.0/1.5/2.0}C →休30m，共 4 個放電 cycle
+- 加入持久化 `cycle_log.csv`：記錄 cycle_id、round_id、q_retention_pct、cumulative_ah；跨次執行自動續接 round_id
+- 為所有 4 個放電 rate 加入 dV/dI 擾動（每 60s 步進到 0.2C dwell 1s），庫倫計數涵蓋擾動秒數避免 ~3% undercount
+- 設定當前電池 profile：custom NMC 2000 mAh，V_cv=4.2V，V_cutoff=2.5V，max discharge 4A
+
+#### 🐛 問題與踩坑
+- IT6302 `APPL V,I` 對連續寫入不可靠更新 CURR，round_runner 首次充電灌出 2A 而非 1A（校正腳本曾踩過同坑卻沒套用紀律），修法：分開 `set_voltage`+`set_current` + `CURR?` readback 驗證
+- 第一版 round_runner 為求 V(SoC) 純淨度移除擾動，使用者反映「動態內阻沒被記錄」後補上；對所有 4 rate 採是因為高 C 的 ΔI 反而給更好 dV/dI SNR
+
+#### 📋 明日待辦
+- 今晚 22:00 啟動第一輪 rate-capability round（預估 ~18h），明日下午結束
+- 觀察 cycle_log.csv 中 0.5C cycle 的 q_retention 是否落在 95-100%（驗證電池實際容量 vs 標稱）
+- 累積 3 輪 fresh-cell baseline 後計算輪間 a_origin 變異性，數據過了才進 Phase 4 老化測試
+
+---
+
 ### 2026/04/14 (updated)
 
 #### ✅ 完成項目

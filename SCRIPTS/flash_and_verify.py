@@ -1,13 +1,19 @@
 #!/usr/bin/env python3
 """Flash MCU and verify boot banner + 1 Hz heartbeat on /dev/ttyACM2.
 
-After the firmware-project-builder (skill + manual-equivalent) refactor:
-  - Boot banner is printed once in once() via uart_debug_printf().
-  - 100 µs base tick (TIM6 ISR) increments g_softWareTimCnt only — no UART.
-  - 1 Hz heartbeat is scheduled in loop() via softWareTimTick_100us(Period=10000).
-    Each tick prints either:
-      "[Ns] alive — i2c=idle ina=absent"           (sensor not wired)
-      "[Ns] alive V=..mV I=..mA P=..mW i2c=ok ina=present"  (sensor wired)
+Auto-detects which mode the firmware is currently in (based on heartbeat
+line content) and applies the matching pass criteria:
+
+  absent  :  "[Ns] alive — i2c=idle ina=absent"
+              ↳ require graceful warn lines on boot, no V/I/P expected.
+  present :  "[Ns] alive V=..mV I=..mA P=..mW i2c=ok ina=present cal=on|off"
+              ↳ require ID-match log on boot, V in 0.5..4.5 V, I/P parseable.
+
+Common criteria (both modes):
+  - boot banner printed once in once() via uart_debug_printf()
+  - clock/peripheral line printed once with SYSCLK=64MHz / I2C1=400kHz / TIM6=100us
+  - 100 µs base tick (TIM6 ISR) → 1 Hz heartbeat via softWareTimTick_100us(Period=10000)
+  - heartbeat lines monotonic, worst jitter <50 ms vs 1 s
   - INA226 absence must NOT hard-fault — graceful "not detected" warn from once().
 """
 from __future__ import annotations
@@ -86,10 +92,6 @@ def main() -> int:
         "SYSCLK=64MHz" in t and "I2C1=400kHz" in t and "TIM6=100us" in t
         for _, t in lines
     )
-    # Graceful "INA226 absent" path:
-    ina_warn = any("[INA226]" in t and "not detected" in t for _, t in lines)
-    # I2C bus idle warn (no slave ACK):
-    i2c_idle = any("[I2C1] no ACK at 0x40" in t for _, t in lines)
 
     # Find when the banner arrived; ignore any heartbeat lines that came before
     # it (those are leftover bytes the kernel buffered from the previous boot).
@@ -97,33 +99,96 @@ def main() -> int:
         (ts for ts, t in lines if "=== SOC_RESEARCH" in t),
         None,
     )
-    # Heartbeat shape: "[<n>s] alive ..."  (n = unsigned seconds since boot)
+    after_banner = [(ts, t) for ts, t in lines
+                    if banner_t is not None and ts >= banner_t]
+
+    # Auto-detect INA226 mode from heartbeat content. Two formats:
+    #   absent:  "[Ns] alive — i2c=idle ina=absent"
+    #   present: "[Ns] alive V=..mV I=..mA P=..mW i2c=ok ina=present cal=on|off"
+    has_absent_heartbeat = any("ina=absent" in t for _, t in after_banner)
+    has_present_heartbeat = any("ina=present" in t for _, t in after_banner)
+    mode = "present" if has_present_heartbeat else ("absent" if has_absent_heartbeat else "unknown")
+
+    # Mode-specific checks
+    if mode == "absent":
+        ina_status_ok = any("[INA226]" in t and "not detected" in t for _, t in lines)
+        i2c_status_ok = any("[I2C1] no ACK at 0x40" in t for _, t in lines)
+        ina_label = "INA226 absent graceful warn"
+        i2c_label = "I2C1 idle (no slave) warn"
+    elif mode == "present":
+        # Firmware boot strings when INA226 ACKs:
+        #   "[INA226] CONFIG/CAL written, monitor armed."
+        #   "[I2C1] device ACKed at 0x40"
+        ina_status_ok = any(
+            "[INA226]" in t and ("CONFIG/CAL written" in t or "monitor armed" in t)
+            for _, t in lines
+        )
+        i2c_status_ok = any("[I2C1]" in t and "ACKed at 0x40" in t for _, t in lines)
+        ina_label = "INA226 armed (CONFIG/CAL written)"
+        i2c_label = "I2C1 device ACK at 0x40"
+    else:
+        ina_status_ok = False
+        i2c_status_ok = False
+        ina_label = "INA226 state (unknown mode)"
+        i2c_label = "I2C1 state (unknown mode)"
+
+    # Heartbeat shape (mode-aware): "[<n>s] alive ..."  always starts with this
     tick_re = re.compile(r"\[(\d+)s\] alive")
     tick_pairs = [
         (ts, int(m.group(1)))
-        for ts, t in lines
+        for ts, t in after_banner
         for m in [tick_re.search(t)]
-        if m and banner_t is not None and ts > banner_t
+        if m
     ]
+
+    # In present mode, also sanity-check that V/I/P fields are populated and
+    # V is in a plausible Li-ion range.
+    sample_re = re.compile(
+        r"\[(\d+)s\] alive V=([\-\d.]+)mV I=([\-\d.]+)mA P=([\-\d.]+)mW"
+    )
+    samples = [
+        (int(m.group(1)), float(m.group(2)) / 1000.0,
+         float(m.group(3)) / 1000.0, float(m.group(4)) / 1000.0)
+        for _, t in after_banner
+        for m in [sample_re.search(t)]
+        if m
+    ]
+    v_in_range = True
+    if mode == "present":
+        v_in_range = bool(samples) and all(0.5 <= s[1] <= 4.5 for s in samples)
 
     print("\n──────── verification ────────")
     print(f"  banner present              : {'OK' if banner_seen else 'FAIL'}")
     print(f"  clock/peripheral line       : {'OK' if sysclk_ok else 'FAIL'}")
-    print(f"  INA226 absent graceful warn : {'OK' if ina_warn else 'FAIL'}")
-    print(f"  I2C1 idle (no slave) warn   : {'OK' if i2c_idle else 'FAIL'}")
+    print(f"  INA226 mode (auto-detect)   : {mode}")
+    print(f"  {ina_label:<27} : {'OK' if ina_status_ok else 'FAIL'}")
+    print(f"  {i2c_label:<27} : {'OK' if i2c_status_ok else 'FAIL'}")
+    if mode == "present":
+        if samples:
+            v_mean = sum(s[1] for s in samples) / len(samples)
+            i_mean = sum(s[2] for s in samples) / len(samples)
+            p_mean = sum(s[3] for s in samples) / len(samples)
+            print(f"  V (mean over {len(samples):>3} samples) : {v_mean:.4f} V "
+                  f"{'(in range 0.5-4.5 V)' if v_in_range else '(OUT OF RANGE!)'}")
+            print(f"  I (mean over {len(samples):>3} samples) : {i_mean*1000:+.2f} mA")
+            print(f"  P (mean over {len(samples):>3} samples) : {p_mean*1000:+.2f} mW")
+        else:
+            print(f"  V/I/P fields                : FAIL (no parseable samples)")
     print(f"  heartbeat lines captured    : {len(tick_pairs)}")
 
     if len(tick_pairs) >= 2:
-        intervals = [tick_pairs[i+1][0] - tick_pairs[i][0]
+        intervals = [tick_pairs[i + 1][0] - tick_pairs[i][0]
                      for i in range(len(tick_pairs) - 1)]
         avg = sum(intervals) / len(intervals)
         worst = max(abs(x - 1.0) for x in intervals)
-        seq_ok = all(tick_pairs[i+1][1] == tick_pairs[i][1] + 1
+        seq_ok = all(tick_pairs[i + 1][1] == tick_pairs[i][1] + 1
                      for i in range(len(tick_pairs) - 1))
         print(f"  heartbeat interval avg      : {avg*1000:.1f} ms (target 1000 ms)")
         print(f"  heartbeat interval worst    : ±{worst*1000:.1f} ms vs 1 s")
         print(f"  heartbeat counter monotonic : {'OK' if seq_ok else 'FAIL — RESET / SKIP'}")
-        ok = banner_seen and sysclk_ok and ina_warn and i2c_idle and seq_ok and worst < 0.05
+        ok = (banner_seen and sysclk_ok and ina_status_ok and i2c_status_ok
+              and seq_ok and worst < 0.05 and v_in_range
+              and mode in ("present", "absent"))
     else:
         ok = False
         print("  not enough heartbeat lines — likely flash did not run / reset issue")

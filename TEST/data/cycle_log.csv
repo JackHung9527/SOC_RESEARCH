@@ -1,0 +1,1 @@
+cycle_id,round_id,step_id,direction,c_rate,c_rate_A,v_start,v_end,ah,q_actual_mAh,q_retention_pct,t_start_iso,duration_s,cumulative_ah,csv_path,note
