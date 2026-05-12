@@ -21,3 +21,8 @@
 .idea/
 *.swp
 *~
+
+# Python bytecode caches (any directory)
+__pycache__/
+*.pyc
+*.pyo
