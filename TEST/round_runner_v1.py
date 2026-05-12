@@ -52,7 +52,7 @@ import argparse
 import sys
 import time
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Optional
 
@@ -120,6 +120,34 @@ def build_round_plan() -> list[Step]:
         i_term_c_override=STORAGE_I_TERM_C,
     ))
     return plan
+
+
+def estimate_step_hours(step: Step) -> float:
+    """Rough wall-clock estimate per step.
+
+    Calibrated against the v0 plan executing on a 1665 mAh NMC cell:
+      * Full CC-CV charge at 0.5C from V_cutoff up to ~0.1C taper:
+        ≈ 1/c_rate (CC, empty → V_cv) + 0.3 h (CV taper).
+      * Full discharge at C-rate: ≈ 1/c_rate.
+      * Storage charge from low SoC up to ~60% SoC with tighter (1/20C)
+        taper: ≈ 0.55/c_rate (CC portion) + 0.5 h (longer CV).
+      * Rest: exactly its duration_s.
+
+    Estimates are intentionally conservative — they assume the cell
+    actually charges fully, ignoring the already-full bypass that can
+    shrink a charge step to seconds. The displayed ETA is therefore an
+    upper bound; real round may finish 1-2 h earlier if any charge
+    bypasses.
+    """
+    if step.kind == "rest":
+        return step.duration_s / 3600.0
+    if step.kind == "discharge":
+        return 1.0 / step.c_rate
+    if step.kind == "charge":
+        return 1.0 / step.c_rate + 0.3
+    if step.kind == "storage_charge":
+        return 0.55 / step.c_rate + 0.5
+    return 0.0
 
 
 def print_plan(plan: list[Step], battery, round_id: int) -> None:
@@ -425,6 +453,26 @@ def run_round(dry_run: bool = False) -> int:
     cycle_id = state.next_cycle_id
 
     print_plan(plan, battery, round_id)
+
+    # ── ETA estimate ───────────────────────────────────────────────────
+    total_h = sum(estimate_step_hours(s) for s in plan)
+    now = datetime.now()
+    eta = now + timedelta(hours=total_h)
+    # Per-kind breakdown for the operator
+    breakdown: dict[str, float] = {}
+    for s in plan:
+        breakdown[s.kind] = breakdown.get(s.kind, 0.0) + estimate_step_hours(s)
+    print(f"[round_runner_v1] estimated duration: {total_h:.1f} h")
+    for kind, hours in breakdown.items():
+        n = sum(1 for s in plan if s.kind == kind)
+        print(f"    • {kind:15s} ×{n}  ≈ {hours:.1f} h")
+    print(f"[round_runner_v1] start: {now.strftime('%Y-%m-%d %H:%M')}  "
+          f"→ ETA: {eta.strftime('%Y-%m-%d %H:%M')} "
+          f"({eta.strftime('%a')})")
+    print(f"    (upper bound — already-full bypass on any charge step "
+          f"could shave 1–2 h)")
+    print()
+
     print(f"[round_runner_v1] cycle_log → {cycle_log.path}")
     print(f"[round_runner_v1] starting at cycle_id={cycle_id}, "
           f"cumulative_throughput so far = {state.cumulative_ah:.3f} Ah")
