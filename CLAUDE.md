@@ -35,6 +35,27 @@ The project is transitioning from a pure documentation/literature review phase i
 
 ## 今日總結
 
+### 2026/05/12
+
+#### ✅ 完成項目
+- 重寫 `round_runner.py` charge step 充飽判斷：條件 `V≥V_cv−100mV` 且 `I≤0.1C` 須**連續滿足 3 秒** + 總 elapsed ≥ 30s，避免 t=0 單點誤觸發
+- 新增 already-full bypass：cell 起步 5 秒視窗內若 `V≥V_cv−30mV` 且 `I<50mA` 且未進過 CC，整個 charge step 跳過（log `note=already_full`），免去隔夜飽電 cell 又跑無意義 CV taper
+- 把所有充飽 knob 集中到 `run_charge_step` 開頭（`v_term_margin` / `i_term` / `t_term_min` / `term_hold_s` / `full_v_margin` / `full_i_max` / `full_window_s`），附 comment block 解釋兩條路徑
+- bypass 視窗期間每秒印一行狀態，避免 30s `_live_print` 間距讓操作者誤判程式卡住
+- 修 BenchInterlock 的 `_psu_off_verified`：從「sleep 100ms 後 hard check」改為「**polling 最多 2 秒、提早通過就走**」，每 150ms 量一次 `MEAS:CURR?`
+
+#### 🐛 問題與踩坑
+- 第一次 round_runner 跑 step 1 (charge 0.5C) 在 t=0 就 `term` 結束：cell 隔夜 OCV≈4.19V，距 V_cv 只剩 10 mV，I=0（PSU 還沒 ramp）→ 條件瞬間成立，整個 charge step 跳過、ah_in=0
+- bypass 第一版 window=3s 在 1 Hz sampling 下只看 3 筆 sample，PSU output 短暫尖峰會打成 `full_seen_break=True`，bypass 被否決且 `cc_entered` 又永遠到不了 → loop 卡死。修法：延 window 到 5s + normal term 解除 `cc_entered` 依賴，改用 30s settle time
+- term 觸發後立刻下 `CHAN:OUTP OFF`，100ms 後 `MEAS:CURR?` 仍回 0.1021A（term 時是 0.1041A，僅掉 2 mA），BenchInterlock 50 mA 門檻誤判 PSU 沒關 → emergency stop。根因：IT6302 內部 A/D 約 1-2 Hz，頭幾筆 MEAS 還在回 OFF 前的 cache
+
+#### 📋 明日待辦
+- 重跑 round 1 確認 charge step 能正常 term + interlock 通過
+- 觀察 cycle_log.csv 的 0.5C cycle `q_retention_pct`（cell baseline 是否 95-100%）
+- 若 polling 2s 仍過不了，補上 `VOLT 0` + `CURR 0` 再 OFF 的激進手段，並考慮把 OFF 後第一次 MEAS 結果直接丟掉（強制 flush stale cache）
+
+---
+
 ### 2026/05/11
 
 #### ✅ 完成項目

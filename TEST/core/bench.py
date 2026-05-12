@@ -68,7 +68,14 @@ class BenchInterlock:
     # ---- low-level: verified output toggles ----------------------------
 
     def _psu_off_verified(self, ch: int = 1) -> None:
-        """Disable PSU channel and verify it actually went off."""
+        """Disable PSU channel and verify it actually went off.
+
+        Polls MEAS:CURR? up to verify_deadline_s after sending OFF. The
+        IT6302's internal A/D updates at ~1-2 Hz and the output FET takes
+        non-trivial time to bleed residual current after CHAN:OUTP OFF,
+        so a single 100 ms check used to spuriously flag I≈100 mA right
+        after a legitimate 0.1C-taper termination.
+        """
         self.psu.select(ch)
         self.psu.channel_output(False)
         # Some IT6302 firmwares carry the OUTP state separately from
@@ -77,19 +84,31 @@ class BenchInterlock:
             self.psu.all_outputs(False)
         except Exception:
             pass
-        time.sleep(0.1)
-        # Best-effort verify by measuring — current ≈ 0 after off.
-        try:
-            i = self.psu.measure_current()
-            if abs(i) > 0.050:
-                raise BenchInterlockError(
-                    f"PSU off verify failed: still measures I={i:.4f} A"
-                )
-        except BenchInterlockError:
-            raise
-        except Exception:
-            # Some SCPI stacks reject MEAS while output is off; tolerate.
-            pass
+
+        i_off_max = 0.050        # 50 mA "off" threshold
+        verify_deadline_s = 2.0  # total budget for the current to settle
+        poll_dt_s = 0.15
+
+        deadline = time.monotonic() + verify_deadline_s
+        last_i: Optional[float] = None
+        while True:
+            time.sleep(poll_dt_s)
+            try:
+                i = self.psu.measure_current()
+            except Exception:
+                # Some SCPI stacks reject MEAS while output is off; if we
+                # can't read, assume off and move on.
+                return
+            last_i = i
+            if abs(i) <= i_off_max:
+                return
+            if time.monotonic() >= deadline:
+                break
+
+        raise BenchInterlockError(
+            f"PSU off verify failed: still measures I={last_i:.4f} A "
+            f"after {verify_deadline_s:.1f} s (threshold {i_off_max:.3f} A)"
+        )
 
     def _load_off_verified(self) -> None:
         self.load.input_off()

@@ -127,13 +127,42 @@ def run_charge_step(
     c1_A = battery.q_rated_mAh / 1000.0
     i_cc = c_rate * c1_A
     v_cv = battery.v_charge_cutoff
-    i_term = battery.i_charge_term
-
+    # ─── Termination tunables ──────────────────────────────────────────
+    # All knobs for "is the cell full?" live here. Two paths can declare
+    # the step done:
+    #
+    #   (A) NORMAL TERM — cell was charged and tapered into CV.
+    #       Condition: V ≥ V_cv − v_term_margin
+    #               AND I ≤ i_term
+    #               AND both have held for term_hold_s consecutive seconds
+    #               AND total elapsed ≥ t_term_min  (PSU/cell settling)
+    #
+    #   (B) ALREADY-FULL BYPASS — operator put a near-full cell on the bench.
+    #       Condition: V ≥ V_cv − full_v_margin for the entire bypass window
+    #               AND I < full_i_max for the entire bypass window
+    #               AND we never crossed into real CC mode
+    #       Window = first full_window_s seconds.
+    #
+    # Why both: a single-sample (V, I) check at t=0 can satisfy (A)
+    # trivially when V_open ≈ V_cv and I=0 (output hasn't ramped).
+    # Persistence + settle time blocks that false trigger; the bypass
+    # captures the legitimate "already full" case quickly so we don't
+    # idle in a fake CV taper for minutes.
+    v_term_margin = 0.10            # 100 mV — must be within this of V_cv
+    i_term = 0.1 * c1_A             # 1/10 C — taper floor
+    t_term_min = 30.0               # min elapsed before NORMAL TERM may fire
+    term_hold_s = 3.0               # both conditions must hold this long
+    full_v_margin = 0.030           # 30 mV bypass V threshold
+    full_i_max = 0.050              # 50 mA bypass I threshold
+    full_window_s = 5.0             # bypass observation window
+    # ───────────────────────────────────────────────────────────────────
     logger = CsvLogger(
         DATA_DIR, tag=f"round{round_id:03d}_cyc{cycle_id:03d}_charge_{c_rate:.1f}C"
     )
     print(f"  [charge {c_rate:.1f}C]  V_cv={v_cv:.3f} V  "
-          f"I_cc={i_cc:.3f} A  I_term={i_term:.3f} A  → {logger.path.name}")
+          f"I_cc={i_cc:.3f} A  I_term={i_term:.3f} A (0.1C)  → {logger.path.name}")
+    print(f"    term: V≥{v_cv-v_term_margin:.3f} & I≤{i_term:.3f} "
+          f"held {term_hold_s:.0f}s after t≥{t_term_min:.0f}s")
 
     psu.select(1)
     # IT6302's APPL command does not reliably update CURR on sequential
@@ -165,6 +194,15 @@ def run_charge_step(
     v_start: Optional[float] = None
     v_last = 0.0
     note = "term"
+    cc_entered = False
+    full_check_until = t0 + full_window_s
+    full_seen_break = False
+    # Persistence tracker for NORMAL TERM: timestamp when both V & I
+    # first entered the term band. Reset to None whenever either drops
+    # out of band. Term fires when (now - t_in_band) ≥ term_hold_s.
+    t_in_band: Optional[float] = None
+    print(f"    [bypass-check] V≥{v_cv-full_v_margin:.3f} & I<{full_i_max:.3f} "
+          f"for {full_window_s:.0f}s → skip step")
     try:
         while True:
             now = time.monotonic()
@@ -183,14 +221,49 @@ def run_charge_step(
             coul.update(-i, dt)
             guard.check(v, i)
 
+            if i >= i_cc * 0.5:
+                cc_entered = True
+            # Any sample that breaks the already-full pattern voids the bypass.
+            in_bypass_window = now < full_check_until
+            if in_bypass_window and (v < v_cv - full_v_margin or i >= full_i_max):
+                full_seen_break = True
+
             stage = "CC" if i >= i_cc * 0.95 else "CV"
             logger.log(t, "charge", v, i, soc_cc=0.0, note=stage)
-            _live_print(t, v, i, 0.0, stage)
+            # Print every sample during the bypass window so the operator
+            # sees something is happening; afterwards back off to 30 s.
+            if in_bypass_window:
+                print(f"    t={t:5.1f}s  V={v:.4f}  I={i:+.4f}  "
+                      f"[{stage}] bypass-watch (break={full_seen_break})")
+            else:
+                _live_print(t, v, i, 0.0, stage)
 
             v_last = v
-            if v >= v_cv - 0.02 and i <= i_term:
-                logger.log(t, "charge", v, i, soc_cc=0.0, note="term")
+
+            if now >= full_check_until and not full_seen_break and not cc_entered:
+                logger.log(t, "charge", v, i, soc_cc=0.0, note="already_full")
+                print(f"    → ALREADY FULL (V={v:.4f}, I={i:+.4f}) — skipping step")
+                note = "already_full"
                 break
+
+            # NORMAL TERM with persistence: both V & I must stay in band
+            # for term_hold_s consecutive seconds. A single noisy sample
+            # that drops back out of band resets the hold timer.
+            v_ok = v >= v_cv - v_term_margin
+            i_ok = i <= i_term
+            if v_ok and i_ok:
+                if t_in_band is None:
+                    t_in_band = now
+                hold = now - t_in_band
+                if t >= t_term_min and hold >= term_hold_s:
+                    logger.log(t, "charge", v, i, soc_cc=0.0,
+                               note=f"term(hold={hold:.1f}s)")
+                    print(f"    → TERM (V={v:.4f}≥{v_cv-v_term_margin:.3f}, "
+                          f"I={i:.4f}≤{i_term:.3f}, held {hold:.1f}s)")
+                    break
+            else:
+                if t_in_band is not None:
+                    t_in_band = None  # dropped out of band — reset
 
             time.sleep(SAMPLE_DT)
     finally:

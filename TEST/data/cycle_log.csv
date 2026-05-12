@@ -1,1 +1,2 @@
 cycle_id,round_id,step_id,direction,c_rate,c_rate_A,v_start,v_end,ah,q_actual_mAh,q_retention_pct,t_start_iso,duration_s,cumulative_ah,csv_path,note
+1,1,1,charge,0.50,0.8325,4.1939,4.2022,-1.66404,-1664.04,0.000,2026-05-12T13:41:00,37.3,1.66404,/home/jackhung/Desktop/AI/SOC_RESEARCH/TEST/data/round001_cyc001_charge_0.5C_20260512_134100.csv,term

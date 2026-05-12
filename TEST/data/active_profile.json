@@ -1,12 +1,12 @@
 {
-  "name": "custom NMC, 2000 mAh (datasheet max discharge 4 A / 2C)",
+  "name": "custom NMC, 1665 mAh measured (datasheet 2000 mAh, derated per Round 1 baseline)",
   "chemistry": "li-ion-nmc",
-  "q_rated_mAh": 2000.0,
+  "q_rated_mAh": 1665.0,
   "v_charge_cv": 4.2,
   "v_charge_cutoff": 4.2,
-  "i_charge_cc": 1.0,
+  "i_charge_cc": 0.833,
   "i_charge_term": 0.05,
   "v_discharge_cutoff": 2.5,
-  "i_discharge_cc": 1.0,
+  "i_discharge_cc": 0.833,
   "v_nominal": 3.7
 }
