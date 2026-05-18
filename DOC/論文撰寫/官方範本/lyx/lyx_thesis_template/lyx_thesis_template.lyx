@@ -1,0 +1,2001 @@
+#LyX 2.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 544
+\begin_document
+\begin_header
+\save_transient_properties true
+\origin unavailable
+\textclass extarticle
+\begin_preamble
+\usepackage{xeCJK}
+\usepackage{titlesec}
+\usepackage{CJKnumb}
+\usepackage{fontspec}
+\usepackage{indentfirst}
+\usepackage{algorithmic}
+\usepackage{titletoc}
+\usepackage{notoccite}
+\usepackage{fancyhdr}
+
+\pagestyle{fancy}
+
+\renewcommand{\headrulewidth}{0pt}
+\fancyhead{}
+%\usepackage[angle=0]{draftwatermark}
+
+
+ 
+\usepackage[angle=0]{draftwatermark}
+
+
+\SetWatermarkText{\includegraphics{./watermark.jpg}}
+
+
+
+\XeTeXlinebreaklocale "zh"
+
+\XeTeXlinebreakskip = 0pt plus 1pt
+
+\setmainfont{Times New Roman}
+\setCJKmainfont{標楷體}
+
+\setlength{\parskip}{0.3cm}
+
+\linespread{1.5}\selectfont
+\end_preamble
+\use_default_options true
+\maintain_unincluded_children false
+\language chinese-traditional
+\language_package default
+\inputencoding utf8-cjk
+\fontencoding global
+\font_roman "default" "default"
+\font_sans "default" "default"
+\font_typewriter "default" "default"
+\font_math "auto" "auto"
+\font_default_family default
+\use_non_tex_fonts true
+\font_sc false
+\font_osf false
+\font_sf_scale 100 100
+\font_tt_scale 100 100
+\font_cjk bkai
+\use_microtype false
+\use_dash_ligatures true
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize default
+\spacing single
+\use_hyperref false
+\papersize a4paper
+\use_geometry false
+\use_package amsmath 1
+\use_package amssymb 1
+\use_package cancel 1
+\use_package esint 1
+\use_package mathdots 1
+\use_package mathtools 1
+\use_package mhchem 1
+\use_package stackrel 1
+\use_package stmaryrd 1
+\use_package undertilde 1
+\cite_engine basic
+\cite_engine_type default
+\biblio_style plain
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\justification true
+\use_refstyle 1
+\use_minted 0
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\secnumdepth 5
+\tocdepth 5
+\paragraph_separation indent
+\paragraph_indentation default
+\is_math_indent 0
+\math_numbering_side default
+\quotes_style english
+\dynamic_quotes 0
+\papercolumns 1
+\papersides 1
+\paperpagestyle plain
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+DraftwatermarkOptions{stamp=false} 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{titlepage}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Title
+\noindent
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+title
+\backslash
+
+\backslash
+
+\end_layout
+
+\end_inset
+
+ 中原大學
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+
+\backslash
+
+\backslash
+vspace{0.1cm}
+\end_layout
+
+\end_inset
+
+○○○○學系
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+
+\backslash
+
+\backslash
+vspace{0.1cm}
+\end_layout
+
+\end_inset
+
+○士○○○○
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+
+\backslash
+
+\backslash
+vspace{2cm}
+\end_layout
+
+\end_inset
+
+我是一份範本
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+
+\backslash
+
+\backslash
+vspace{0.5cm}
+\end_layout
+
+\end_inset
+
+以中原大學為例-
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+
+\backslash
+
+\backslash
+vspace{0.5cm}
+\end_layout
+
+\end_inset
+
+I am a format sample.
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+vspace{3cm}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Author
+\noindent
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+author
+\backslash
+
+\backslash
+
+\end_layout
+
+\end_inset
+
+指導教授 : ○○○
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+
+\backslash
+
+\backslash
+vspace{0.1cm}
+\end_layout
+
+\end_inset
+
+研究生 : ○○○
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+vspace{3cm}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Date
+\noindent
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+date
+\backslash
+
+\backslash
+
+\end_layout
+
+\end_inset
+
+中華民國 ○○○ 年 ○ 月
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+thispagestyle{empty}
+\backslash
+end{titlepage}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+DraftwatermarkOptions{stamp=true} 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Part*
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+addcontentsline{toc}{part}{摘要}
+\backslash
+pagenumbering{Roman}
+\backslash
+setcounter{page}{1}
+\backslash
+centerline{摘要}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+民國42年由篤信基督、熱心教育人士張靜愚先生、郭克悌先生、賈嘉美牧師、鈕永健先生、陳維屏先生、瞿荊洲先生及桃園中壢地方士紳吳鴻森先生、徐崇德先生等會商籌設一所農
+工學院，期以基督救世愛人的精神，為國家造就高深科學與工程人才；在歷經多次籌備更名，於民國44年10月奉教育部核准立案，定名為「私立中原理工學院」，以「篤信力行」
+為校訓，設物理、化學、化學工程、土木工程等4個學系；民國69年8月1日改制為中原大學。
+\end_layout
+
+\begin_layout Standard
+中原大學已走過半個多世紀的歲月，在歷屆董事會支持下，經郭克悌、謝明山、韓偉、阮大年、尹士豪、張光正、熊慎幹、程萬里、張光正等諸位校長掌理校務，貢獻良多，厥功甚偉
+，並分別代表了中原初創、奠基、成長、茁壯、擴張、拓展及新象等階段。現今擁有理、工、商、法、設計、人文與教育、電機資訊等7個學院、29個學士班(含27個學系、1個
+電資學院學士班、1個原住民專班)、38個碩士班、13個博士班及19個碩專班；歷屆畢業校友已達13萬餘人，在國家重大建設中，竭盡心力貢獻所學，深獲各界讚譽。
+ 
+\end_layout
+
+\begin_layout Standard
+瞻望未來，中原除在既有的教育宗旨與理念之精神憲法下，建構「三創教育」－活用創意、激發創新、迎向創業之特色競爭優勢為標的；揭櫫「全人教育」、「生命關懷」及「服務學
+習」為發展目標；積極培育學生品格精進及國際視野；並以穩健踏實的辦學理念為國內高等教育盡一份心力，全校師生亦在各項表現中展現傑出優異的成果，屢獲產官學界給予肯定之
+耀眼成績。本校持續朝向以具有世界知名度並擁有諸多國內標竿特色之「有信、有望、有愛」的卓越大學邁進。 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+newpage
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Part*
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+addcontentsline{toc}{part}{Abstract}
+\backslash
+centerline{Abstract}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+In 1953, a group of Christian educators and local gentries got together
+ to establish an agricultural and engineering college in Taiwan to train
+ science and engineering talent in the Christian spirit.
+ After several name changes and long preparations, the Chung Yuan Christian
+ College of Science and Engineering (CYCC) was established in October 1955
+ upon approval by the Ministry of Education.
+ With "education through honest, diligent pursuit and practical experience"
+ as the school`s motto, the College was composed of four departments, namely,
+ the departments of physics, chemistry, chemical engineering, and civil
+ engineering.
+ Upgraded to the status of a full university, CYCC was renamed Chung Yuan
+ Christian University (CYCU) on Aug.
+ 1, 1980.
+\end_layout
+
+\begin_layout Standard
+After five decades, CYCU has developed with support from all members of
+ the Board of Trustees, as well as immense contributions from past presidents
+ and administrators, Kuo Ke-tee, Hsieh Ming-shan, Han Wei, Yuan Ta-nien,
+ Yin Shiu-hau, Chang Kwang-cheng , Hsiung Shen-kan, and Cheng Wan-lee who
+ represents stages in CYCU creation, foundation, growth, steadfastness,
+ and expansion.
+ The University enrolls students in seven-granting school and colleges,
+ such as the College of Science, Engineering, Business, Design, Electrical
+ Engineering and Computer Science, Humanities and Education, and the School
+ of Law.
+ The university offers 38 graduate programs and 13 Ph.D.
+ programs in 29 departments.
+ There are more than 120,000 alumni and most of them devote their best to
+ the progress of society.
+\end_layout
+
+\begin_layout Standard
+With a vision for the future, “Integrating,”“Creativity,”“Innovation,” are
+ the competitive advantages of CYCU.
+ By adhering to its educational philosophy and mission, “Holistic Education,”
+ “Human Concern,” and “Service Learning” are the development objectives
+ of CYCU.
+ Furthermore, CYCU has been ranked as the integrated and most prestigious
+ institution of higher education among private universities by Ministry
+ of Education since 1995.
+ Thus, with this responsibility, CYCU devotes to upgrading the level of
+ higher education in Taiwan.
+ Being the leading private university in Taiwan, CYCU intends to raise its
+ reputation in the world; to achieve the goal of being a “faith, hope, and
+ love” integrated university in Taiwan.
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+newpage
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Part*
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+addcontentsline{toc}{part}{致謝}
+\backslash
+centerline{致謝}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+中原大學之建校，本基督愛世之忱， 以信、以望、以愛，致力於中國之高等教育， 旨在追求真知力行，以傳啟文化、服務人類。
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+newpage
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Part*
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+addcontentsline{toc}{part}{目錄}
+\backslash
+centerline{目錄}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset toc
+LatexCommand tableofcontents
+
+\end_inset
+
+
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+newpage
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Part*
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+addcontentsline{toc}{part}{圖目錄}
+\backslash
+centerline{圖目錄}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+listoffigures
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+newpage
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Part*
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+addcontentsline{toc}{part}{表目錄}
+\backslash
+centerline{表目錄}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset FloatList table
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+newpage
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Part*
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+addcontentsline{toc}{part}{第一章 序論}
+\backslash
+pagenumbering{arabic}
+\backslash
+centerline{第一章 序論}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section*
+第一節 全人教育的由來
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+addcontentsline{toc}{section}{第一節 全人教育的由來}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+在概念上，「全人教育」原本就是我國傳統教育的目標，然而面對科技發展的影響與衝擊，現代人所經歷的教育環境往往只能塑造一個在專業領域學有專精的單面向人(One
+ dimension person)，而無法教育出具多方面智慧和能力、有完整人格的人。
+\end_layout
+
+\begin_layout Standard
+換言之，這種「偏頗的教育」所造就出來的人，固然可以滿足社會發展的需求，但無法善盡一個「人」的職責；因此，需要有一種整全而平衡的教育，塑造完整人格，以協助現代人重
+建圓融美滿的人生，這就是「全人教育」的由來。 
+\end_layout
+
+\begin_layout Section*
+第二節 理念篇
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+addcontentsline{toc}{section}{第二節 理念篇}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection*
+中原大學的全人教育和「教育宗旨與理念」有什麼關聯 ?
+\end_layout
+
+\begin_layout Standard
+在思考制訂本校的教育宗旨及教育理念的過程中，發現我們的整體思維， 無論在教育宗旨、倫理觀念、教育目標、教育功能、教育動力、學術立場、 教育方式或傳統價值，無一不
+是指向培養「有信、有望、有愛」，兼備專業知識、 品格涵養和生命智慧的知識份子之目標。因此，我們推動的「全人教育」，和本校的教育宗旨與理念息息相關，緊密連結。
+ 
+\end_layout
+
+\begin_layout Subsection*
+中原大學的教育宗旨怎麼說?
+\end_layout
+
+\begin_layout Standard
+我們的教育宗旨為： 中原大學之建校，本基督愛世之忱， 以信、以望、以愛，致力於中國之高等教育， 旨在追求真知力行，以傳啟文化、服務人類。 
+\end_layout
+
+\begin_layout Subsubsection*
+中原大學的教育理念怎麼說?
+\end_layout
+
+\begin_layout Standard
+我們的教育理念共七條，可分述如下： 
+\end_layout
+
+\begin_layout Standard
+「我們尊重自然與人性的尊嚴，尋求天人物我間的和諧，以智慧慎用科技與人文的專業知識，造福人群。」〈倫理觀念〉 
+\end_layout
+
+\begin_layout Standard
+「我們瞭解人人各承不同之秉賦，其性格、能力與環境各異，故充分發揮個人潛力就是成功。」 〈教育目標〉 
+\end_layout
+
+\begin_layout Standard
+「我們認為教育不僅是探索知識與技能的途徑，也是塑造人格、追尋自我生命意義的過程。」 〈教育功能〉 
+\end_layout
+
+\begin_layout Standard
+「我們確信『愛』是教育的主導力量，願以身教言教的方式，互愛互敬的態度，師生共同追求成長。」 〈教育動力〉
+\end_layout
+
+\begin_layout Standard
+「我們尊重學術自由與自主，並相信知識使人明理，明理使人自由。」 〈學術立場〉
+\end_layout
+
+\begin_layout Standard
+「我們相信踐履篤實的教育方式是尋求真知的途徑。」 〈教育方式〉
+\end_layout
+
+\begin_layout Standard
+「我們深以虔敬上主、摯愛國家、敬業樂群、崇尚簡樸的傳統校風為榮。」 〈傳統價值〉 
+\end_layout
+
+\begin_layout Section*
+第三節 內涵篇
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+addcontentsline{toc}{section}{第三節 內涵篇}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection*
+中原大學全人教育的核心內涵是什麼？
+\end_layout
+
+\begin_layout Standard
+中原大學教育理念之首要，特別強調「我們尊重自然與人性的尊嚴，尋求天人物我間的和諧，以智慧慎用科技與人文的專業知識，造福人群。」因此，「天」、「人」、「物」、「我
+」即為本校全人教育理念之核心內涵。
+\end_layout
+
+\begin_layout Subsection*
+全人教育中的「天」指的是什麼？
+\end_layout
+
+\begin_layout Standard
+所謂「天」，乃指活在關係中的人，以信仰崇拜、敬天愛神的態度追求終極意義，探索永恆價值。自古以來人類都一直為生死課題、人生價值、天堂地獄、宇宙探源等所謂終極關懷問
+題而苦尋答案。此為人生意義之追求所必須面對的重要課題
+\end_layout
+
+\begin_layout Subsection*
+全人教育中的「人」指的是什麼？
+\end_layout
+
+\begin_layout Standard
+所謂「人」是指活在屬於人的各種關係價值之中，而不是一個完全離群索居的「人」。依社會學的意義而言，甚難將這種離群索居的人稱之為「人」。當今所謂的現代人，常極力否定
+人與其他事物之關係，在他們的心目中，認為任何關係都是一種束縛，都是對個人自由的斲傷。這種思想產生了否定一切的心態，拒絕權威，拒絕真理，完全以個體自由為標準。然而
+事實上，人是有限的，人是不足的，作為一個勇敢的人，必須面對自己的一切，知道自己有限、不足，有「是什麼就是什麼」的勇氣，才有更求上進的意志，田立克
+ (Paul Tillich) 所謂「courage to be」，正是此意。
+\end_layout
+
+\begin_layout Subsection*
+全人教育中的「物」指的是什麼 ? 
+\end_layout
+
+\begin_layout Standard
+天生萬物必有我用，人與物的關係應是一種「共生」的關係，人利用各種技術和物質以改善生活的環境，促進人類的幸福。所謂「人」為萬「物」之靈，此之謂也。但是，不幸的是今
+天的人已為「物」所役，甚至與「物」相對峙，人的主體性完全喪失，今天的世界似乎已是追求「物」為萬「人」之靈的世界，此為何等悲哀之事。 全人教育中的「我」指的是什麼
+？ 「我」是獨特的 (unique)，生命是不可取代的。然而人生在世也絕對不可能完全孑然獨存，不受任何人之影響，做一個「人」必須有勇氣面對自己的有限、軟弱與無能
+，如此，方能繼續努力、發揮潛能，盡一己之力以完成個體存在之意義。
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+newpage
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Part*
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+addcontentsline{toc}{part}{第二章 論文格式}
+\backslash
+centerline{第二章 論文格式}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section*
+第一節 自動為圖片、表格增加序號
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+addcontentsline{toc}{section}{第一節 自動為圖片、表格增加序號}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection*
+一、 標號
+\end_layout
+
+\begin_layout Standard
+插入圖片之後，在要加上編號的地方，點選「參考資料」/「標號」/「插入標號」。第一次新增標號時，要點選「新增標籤」，輸入「圖」或「表」，之後只要在標籤裡選擇「圖」
+或「表」即可，如果有設定好大綱編號，可以在編號方式中將「包含章節編號」打勾，在這個範本第幾章是使用標題1，所以章節起始樣式選標題1，按確定，插入標號後，按一下t
+ab (不要使用空白，以免影響到圖目錄的對齊)，接著在後面打上想要的說明即可。如Figure
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "插入標號的路徑"
+plural "false"
+caps "false"
+noprefix "false"
+
+\end_inset
+
+，如Figure
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "標號設定"
+plural "false"
+caps "false"
+noprefix "false"
+
+\end_inset
+
+，如Table
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "tab:測試表格"
+plural "false"
+caps "false"
+noprefix "false"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+插入標號的路徑
+\end_layout
+
+\end_inset
+
+
+\begin_inset CommandInset label
+LatexCommand label
+name "插入標號的路徑"
+
+\end_inset
+
+
+\begin_inset Graphics
+	filename 1.png
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+標號設定
+\end_layout
+
+\end_inset
+
+
+\begin_inset CommandInset label
+LatexCommand label
+name "標號設定"
+
+\end_inset
+
+
+\begin_inset Graphics
+	filename 2.png
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float table
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+測試表格
+\begin_inset CommandInset label
+LatexCommand label
+name "tab:測試表格"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Tabular
+<lyxtabular version="3" rows="8" columns="3">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+各院名稱
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+精裝論文顏色
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+顏色參考
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+理學院
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+藍色 (燙金字體)
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename 1-1.jpg
+	width 2cm
+	height 1cm
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+工學院 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+黑色 (燙金字體)
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename 1-2.JPG
+	width 2cm
+	height 1cm
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+商學院 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+綠色 (燙金字體) 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename 1-3.jpg
+	width 2cm
+	height 1cm
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+設計學院 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+咖啡色 (燙金字體) 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename 1-4.jpg
+	width 2cm
+	height 1cm
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+人育學院 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+紅色 (燙金字體) 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename 1-5.jpg
+	width 2cm
+	height 1cm
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+電資學院 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+淺銀灰藍色 (燙金字體) 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename 1-6.jpg
+	width 2cm
+	height 1cm
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+法學院 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+暗紅色 (燙金字體) 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename 1-7.jpg
+	width 2cm
+	height 1cm
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection*
+二、 標題及內文格式
+\end_layout
+
+\begin_layout Standard
+中文字型若為標楷體、西文字型則為 Times New Roman，請參照Table
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "tab:格式說明"
+plural "false"
+caps "false"
+noprefix "false"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float table
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+格式說明
+\begin_inset CommandInset label
+LatexCommand label
+name "tab:格式說明"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Part*
+\align center
+\begin_inset Tabular
+<lyxtabular version="3" rows="6" columns="3">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+類別
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+字體大小
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+編號方式
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+內文
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+12
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+無
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+標題一 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+18
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+第一章
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+標題二 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+16
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+第一節
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+標題三
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+14
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+一
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+圖表
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+9
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+標號
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section*
+第二節 新增圖、表目錄
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+addcontentsline{toc}{section}{第二節 新增圖、表目錄}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+在「參考資料」之「標號」中，點選插入「圖表目錄」，然後選擇「標題標籤」即可。，參考Figure
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "插入圖表目錄"
+plural "false"
+caps "false"
+noprefix "false"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+插入圖表目錄
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset CommandInset label
+LatexCommand label
+name "插入圖表目錄"
+
+\end_inset
+
+
+\begin_inset Graphics
+	filename 3.png
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+newpage
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Part*
+\noindent
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+addcontentsline{toc}{part}{參考文獻}
+\backslash
+centerline{參考文獻}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+[1] 中原大學教務處, 2021 - 論文撰寫格式及離校注意事項 https://本校首頁/行政單位/教務處/單位公告/行政公告 
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+newpage
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Part*
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+addcontentsline{toc}{part}{附錄}
+\backslash
+centerline{附錄}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+如Table
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "相關問題洽詢單位"
+plural "false"
+caps "false"
+noprefix "false"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float table
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+相關問題洽詢單位
+\end_layout
+
+\end_inset
+
+
+\begin_inset CommandInset label
+LatexCommand label
+name "相關問題洽詢單位"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Tabular
+<lyxtabular version="3" rows="6" columns="3">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+問題類別
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+洽詢單位
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+連絡分機
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+畢業論文撰寫格式
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+課註組各系承辦人
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+課註組各系承辦人
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+離校程序
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+或 各學系(所)助理
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+或 各學系(所)助理分機
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+本校論文摘要線上建檔
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+繳交論文全文電子檔
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+張靜愚紀念圖書館系統組
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+校內分機 2855 或 2851
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+論文轉 PDF 檔
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Separator plain
+\end_inset
+
+
+\end_layout
+
+\end_body
+\end_document

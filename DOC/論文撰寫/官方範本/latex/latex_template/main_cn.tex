@@ -1,0 +1,90 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage{CJKutf8}
+\usepackage{setspace}
+\onehalfspacing
+\usepackage{graphicx, subfig} % Required for inserting images
+\usepackage{sectsty} % for section name format in center
+\usepackage[table,xcdraw]{xcolor}%表格
+\usepackage{float}
+\usepackage{hyperref}
+
+\textwidth      = 137.0mm
+\textheight     = 224.0mm
+\topmargin      =  -3.0mm
+\headheight     =   0.0mm
+\headsep        =  10.0mm
+\footskip       =   8.0mm
+\oddsidemargin  =  10.6mm
+\evensidemargin =  10.6mm
+\hoffset = -0.2cm
+
+\begin{document}
+\begin{CJK*}{UTF8}{bsmi} % 定義中文環境
+\sectionfont{\centering}
+\begin{center}
+    \textbf{\fontsize{24}{32}\selectfont 中原大學}\\
+    \textbf{\fontsize{24}{32}\selectfont OOOO學系}\\
+    \textbf{\fontsize{24}{32}\selectfont O士OOOO}\\
+    \textbf{} \\
+    \textbf{} \\
+    \textbf{} \\ 
+    \textbf{} \\
+    \textbf{\fontsize{18}{21.6}\selectfont 中文論文範本}\\
+    \textbf{\fontsize{18}{21.6}\selectfont This is a thesis template.}\\
+    \textbf{} \\
+    \textbf{} \\
+\end{center}
+\begin{center}
+    \textbf{} \\
+    \textbf{} \\
+    \textbf{} \\
+    \textbf{} \\
+    \textbf{} \\
+    \textbf{} \\
+    \textbf{} \\
+    \textbf{\fontsize{24}{32}\selectfont 指導教授:OOO} \\
+    \textbf{\fontsize{24}{32}\selectfont 研究生:OOO} \\
+\end{center}
+\vfill
+\begin{center}
+    \textbf{\fontsize{24}{21.6}\selectfont 中華民國113年O月}
+\end{center}
+\thispagestyle{empty}
+\clearpage
+
+\pagenumbering{Roman} %以下頁碼使用大寫羅馬數字
+\input{abstract_Chinese.tex}
+\input{abstract_English.tex}
+
+\addcontentsline{toc}{section}{謝辭}
+\begin{center}
+    \textbf{\fontsize{18}{21.6}\selectfont 謝辭} \\
+\end{center}
+中原大學之建校，本基督愛世之忱，\\
+以信、以望、以愛，致力於中國之高等教育，\\
+旨在追求真知力行，以傳啟文化、服務人類。
+\clearpage
+
+\addcontentsline{toc}{section}{目錄}
+\renewcommand{\contentsname}{目錄} %將latex自帶的"Contents"名稱改為 "目錄"
+\tableofcontents
+\clearpage
+
+\renewcommand{\listfigurename}{圖目錄}
+\listoffigures
+\addcontentsline{toc}{section}{圖目錄}
+\clearpage
+
+\renewcommand{\listtablename}{表目錄}
+\addcontentsline{toc}{section}{表目錄}
+\listoftables
+\clearpage
+
+\pagenumbering{arabic} %以下頁碼使用阿拉伯/印度數字
+\input{introduction.tex}
+\input{pagenumber.tex}
+\input{appendix.tex}
+\input{reference.tex}
+
+\end{CJK*}
+\end{document}
