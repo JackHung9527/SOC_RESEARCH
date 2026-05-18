@@ -15,6 +15,10 @@ The project is transitioning from a pure documentation/literature review phase i
   - `論文簡報/` — Chinese and English summaries of the reference papers (DOCX)
   - `會議紀錄/` — Meeting presentations (PPTX) named as `meeting_MMDD_洪大甲`, plus related materials
   - `主題簡報/` — Topic-specific presentations on SOC/Kalman filter concepts and LFP hysteresis modeling
+  - `校正紀錄/` — Instrument calibration logs (INA226 multi-point LUT etc.)
+  - `論文撰寫/` — Thesis outline + official templates (`論文大綱.md` is source of truth)
+  - `分析紀錄/` — **Self-contained analysis reports on test data**. Each report is dated and points to source CSVs; new conversations should read these to resume context. Currently: `2026-05-18_rate_capability_and_R_analysis.md`
+- **TEST/** — Bench automation: round_runner, GITT runner, drivers (IT6302/IT8512/INA226), and `data/` containing per-cycle CSV traces + `cycle_log.csv` aggregate metadata
 - **MCU/** — Reserved for embedded firmware code (currently empty, pending implementation)
 
 ## Research Topics
