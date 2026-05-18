@@ -53,3 +53,4 @@ cycle_id,round_id,step_id,direction,c_rate,c_rate_A,v_start,v_end,ah,q_actual_mA
 28,6,52,discharge,2.00,3.3300,3.9675,2.4284,1.64739,1647.39,98.943,2026-05-18T01:33:10,1896.0,48.50261,/home/jackhung/Desktop/AI/SOC_RESEARCH/TEST/data/round006_cyc028_discharge_2.0C_20260518_013310.csv,cutoff
 29,6,53,storage_charge,0.50,0.8325,3.0570,3.9009,-0.45754,-457.54,0.000,2026-05-18T02:34:46,6099.4,48.96015,/home/jackhung/Desktop/AI/SOC_RESEARCH/TEST/data/round006_cyc029_storage_charge_0.5C_20260518_023446.csv,term → park@3.90V
 30,7,54,charge,0.50,0.8325,3.8812,4.2003,-1.17875,-1178.75,0.000,2026-05-18T09:01:34,2593.3,50.13890,/home/jackhung/Desktop/AI/SOC_RESEARCH/TEST/data/round007_cyc030_charge_0.5C_20260518_090134.csv,term
+30,7,55,discharge,0.50,0.8325,4.1247,2.4731,1.65013,1650.13,99.107,2026-05-18T10:14:47,7531.2,51.78903,/home/jackhung/Desktop/AI/SOC_RESEARCH/TEST/data/round007_cyc030_discharge_0.5C_20260518_101447.csv,cutoff
