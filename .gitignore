@@ -26,3 +26,6 @@
 __pycache__/
 *.pyc
 *.pyo
+
+# Office 暫存鎖檔
+~$*

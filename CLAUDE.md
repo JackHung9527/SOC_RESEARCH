@@ -39,6 +39,28 @@ The project is transitioning from a pure documentation/literature review phase i
 
 ## 今日總結
 
+### 2026/06/03
+
+#### ✅ 完成項目
+- 確立碩論主題銳化方向：以「嵌入式資源約束下的 SOC 演算法精度-成本權衡」為論文記憶點，三方法（庫倫計數／EKF／動態阻抗）退為實驗載體，避開「純比較缺乏新穎性」的口試攻擊
+- 撰寫第一章緒論完整內文：1.1 研究背景、1.2 研究動機（兩個 research gap：評估環境失真、benchmark 不公平）、1.3 研究目的與貢獻（三點）、1.4 論文架構，含三篇參考文獻（Lin 2016／Bressanini 2017／Lee et al.）
+- 基於中原官方 Word 範本產出論文主檔：封面（中英題目、碩士學位論文、民國 115 年）＋ 摘要／Abstract／誌謝佔位框架 ＋ 第一～六章框架
+- 緒論內文併入主檔第一章，套正式論文格式（節標題粗體靠左、內文標楷體 12pt 首行縮排兩端對齊、貢獻編號、參考文獻懸掛縮排）
+- 改為單一 Word 檔持續更新模式（`鋰電池SOC估測方法之比較與嵌入式實作.docx`），刪除日期版本快照（原 `_YYMMDDnn` 命名）
+- 清除範本殘留：TOC／TOF 教學快取、9 張孤兒教學截圖（742 KB → 31 KB）、格式說明表
+
+#### 🐛 問題與踩坑
+- Windows cp950 codec 在 docx `validate.py` 誤判合法 UTF-8 XML 為非法多位元組，用 `PYTHONUTF8=1` 解決
+- python-docx 刪段落（`w:p`）不會刪表格（`w:tbl`），範本「格式說明表」漏刪，改用 `d.tables` 定位刪除
+- 範本章標題實際是 Normal＋手動格式（非 Heading 1 樣式），定位正文教學區要用文字比對而非樣式名
+- 開檔跳「功能變數可能參考其他檔案」警語，根因是 TOC field 被標記 `dirty="true"`，移除 dirty 即不再跳（並把目錄快取填回六章避免空白）
+- pandoc／pdftoppm 未安裝，改用 python-docx ＋ pypdf 處理 docx／pdf
+
+#### 📋 明日待辦
+- 將第二章、第三章草稿併入主檔
+- 補封面三項（研究生姓名、系所全名、指導教授）
+- 撰寫摘要／Abstract／誌謝內容
+
 ### 2026/05/12
 
 #### ✅ 完成項目
