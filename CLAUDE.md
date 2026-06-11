@@ -39,6 +39,26 @@ The project is transitioning from a pure documentation/literature review phase i
 
 ## 今日總結
 
+### 2026/06/11
+
+#### ✅ 完成項目
+- 撰寫第四章完整草稿 `第四章_SOC估測方法之實作與比較.md`：4.0 共同前提（SOC 真值界定、比較指標符號）、4.1 庫倫計數（兼 ground truth）、4.2 EKF（一階 RC、狀態 2 維、增益免矩陣求逆、GITT OCV 表觀測方程）、4.3 動態阻抗（複用 dV/dI 擾動、二次擬合＋分枝選根）、4.4 三軸比較框架、4.5 小結
+- 嚴格區分實測與待測：rate-capability 真實數據入文（rounds 1–23，0.5C→2.0C 容量僅降約 1%、跨輪再現性佳）；EKF／動態阻抗／footprint 數值一律標 `[待測]` 紅字佔位，不虛構任何 RMSE
+- 第二、三、四章全部併入論文主檔，產出 `鋰電池SOC估測方法之比較與嵌入式實作_20260611.docx`（549 段、15 表），格式逐項比照第一章（節標題粗體 14pt 靠左、內文標楷體 12pt 首行縮排兩端對齊、表頭淺藍底）；原主檔未動
+- 建立 md→docx 轉換管線（python-docx）：markdown 解析（標題／內文／表格／公式／程式碼／註記／表標題）＋ LaTeX→unicode 線性近似 ＋ 表格自動配寬與框線
+- 依使用者要求把內文行距 18pt → 24pt（181 段），標題／表格／註記／程式碼維持原樣
+
+#### 🐛 問題與踩坑
+- LaTeX 轉換器 `\in` 規則先吃掉 `\int` 產生「∈t」亂碼；`\dfrac` 未涵蓋——改用整字 regex（`\\([a-zA-Z]+)` 查表）＋ dfrac 正規化 ＋ 殘留花括號清除解決
+- docx skill 的 `soffice.py` 在 Windows 用 `socket.AF_UNIX` 直接 AttributeError，PDF 視覺驗證不可行；`validate.py` 缺 `defusedxml`——改用 python-docx 做結構驗證（章界、樣式、表格 shape 抽查）
+- python-docx 對混排插入要用 `cursor.addnext(element)` 逐塊推進，表格（`w:tbl`）與段落（`w:p`）才能保持原文順序
+
+#### 📋 明日待辦
+- 撰寫摘要／Abstract／誌謝內容、補封面三項（研究生姓名、系所全名、指導教授）
+- 第五、六章內容撰寫（主檔仍為佔位）
+- 第四章 `[待測]` 實驗排程：GITT OCV 表建立、EKF PC 原型、動態阻抗離線擬合
+- Word 內數學式改方程式編輯器重排；圖 3-1／3-2 ASCII 圖改繪正式向量圖
+
 ### 2026/06/03
 
 #### ✅ 完成項目
