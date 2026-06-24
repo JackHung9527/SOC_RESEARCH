@@ -64,9 +64,12 @@ The project is transitioning from a pure documentation/literature review phase i
 - 踩坑：python-docx `doc.paragraphs` 每次回傳新 wrapper，段落比對要用 `p._p is x._p`（XML 元素身分），不能用 `p is x`
 - **動態阻抗「反推 SOC」逐點精度實測算出**：用表4-3 係數把阻抗反解成 SOC、與庫倫真值比（oracle 分枝），各倍率 RMSE 約 6～10%（0.5C 9.7%、2.0C 6.3%）；SOC 中段40-60% 較差（9-13%）、兩端較小（5-9%），印證拋物線中段平緩→反推病態；rounds1-2擬合/round3留出驗證 RMSE 7-10% 相當（非過擬合）。填入表4-3 末欄、表4-4 動態阻抗列，並補進 4.3.4／4.5 內文
 
+- 中文摘要＋英文 Abstract＋雙語關鍵詞已撰寫並填入 docx 前置頁（誠實版：只陳述已完成實測，EKF/footprint 不報數字）；建置腳本加 `fill_placeholder()` 取代佔位
+
 #### 📋 還沒做完（明日待辦）
 - EKF（4.2.5）精度、三方法 footprint（4.4）仍為 [待測]（需先建 GITT OCV 表、做 EKF 原型與移植）
-- 摘要／Abstract／誌謝／封面三項、第五六章內文；docx 待 Word 視覺確認與數學式重排
+- 誌謝（個人內容）、封面三項（研究生姓名／系所全名／指導教授，需使用者提供）、第五六章內文
+- docx 待 Word 視覺確認；數學式仍線性近似，待方程式編輯器重排
 - 動態阻抗「以擬合反推 SOC」的逐點精度尚未計算（目前只算了擬合係數本身）
 - docx 尚未經 Word 視覺確認（本機無 PDF 轉檔工具）；數學式仍為線性近似，待 Word 方程式編輯器重排
 - 摘要／Abstract／誌謝／封面三項、第五六章內容仍待寫
