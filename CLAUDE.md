@@ -57,10 +57,13 @@ The project is transitioning from a pure documentation/literature review phase i
 - matplotlib 中文用 Microsoft JhengHei；缺字（≈、−、ᵀ）需改寫或以線段繪製；數學式用 mathtext(stix) 排版乾淨
 - 本機 `python`(Desktop/.venv) 無 python-docx，需用 `C:\...\Python312\python.exe` 跑
 
+#### ✅ 補完成（傍晚續工）
+- **docx 第一章已同步**：`build_thesis.py` 升級為「Ch1 也從 `第一章_緒論.md` 重建」（移除 pristine 舊正文、保留其後參考文獻區塊再更新）；驗證 Ch1–4 已無 NN／資料驅動／Lin 等人／庫倫效率／round_runner／heartbeat／soc_soh_calc，內文引用編號 [1]–[5] 一致
+- 圖3-1 系統架構改成正式圖檔（`figures/fig3-1.png`），docx 共 6 張圖（圖2-1、3-1、4-1～4-4）
+- Ch4 4.0、4.1.4、Ch3 3.1 殘留術語淺顯化（去 soc_soh_calc／100µs／heartbeat／round_runner／cycle_log 等）
+- 踩坑：python-docx `doc.paragraphs` 每次回傳新 wrapper，段落比對要用 `p._p is x._p`（XML 元素身分），不能用 `p is x`
+
 #### 📋 還沒做完（明日待辦）
-- **[最重要] docx 第一章仍是舊內容**：`build_thesis.py` 只重建二三四章，第一章沿用主檔 `鋰電池SOC估測方法之比較與嵌入式實作.docx`（pristine）的舊版。故 docx 第一章的「NN／資料驅動分類」「Lin 等人」「Flash/CPU週期」「BenchInterlock」「GITT pseudo-OCV」等提及與內文引用編號**尚未同步**，且與已重編號的參考文獻不一致。需把第一章也從 `第一章_緒論.md` 重建（或就地改 docx 第一章段落）
-- 圖3-1 系統架構仍是 ASCII，未改成正式圖檔
-- Ch4 4.0 仍有 `soc_soh_calc`／100µs系統節拍／heartbeat 等術語，可再淺顯化
 - EKF（4.2.5）精度、三方法 footprint（4.4）仍為 [待測]（需先建 GITT OCV 表、做 EKF 原型與移植）
 - 動態阻抗「以擬合反推 SOC」的逐點精度尚未計算（目前只算了擬合係數本身）
 - docx 尚未經 Word 視覺確認（本機無 PDF 轉檔工具）；數學式仍為線性近似，待 Word 方程式編輯器重排
