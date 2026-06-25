@@ -39,6 +39,27 @@ The project is transitioning from a pure documentation/literature review phase i
 
 ## 今日總結
 
+### 2026/06/25（口試簡報製作與封面／章節修正）
+
+#### ✅ 完成項目
+- 新建 `build_defense_ppt.py`：用 python-pptx 從六章 markdown 萃取重點，產生 **20 頁口試簡報** `口試簡報_鋰電池SOC估測.pptx`（16:9、電資學院銀灰藍配色、嵌入論文 6 張正式圖檔＋實測數據表）。頁序：封面→大綱→背景→動機→目的貢獻→文獻→方法選擇→系統架構→韌體骨架→INA226校正→測試協定→庫倫→rate-capability→EKF→動態阻抗原理→動態阻抗實測→三方法比較→系統整合→結論決策表→限制未來工作
+- 撰寫 `口試講稿.md`：逐頁敘述稿（約 12–15 分鐘）＋ 5 題委員口袋題庫（庫倫當真值、EKF 未測完、動態阻抗 RMSE、為何不用 2RC/UKF、能否外推）
+- 章節用字修正：「3.2 韌體骨架與系統節拍」→「3.2 韌體骨架」，同步改第三章 markdown、簡報、講稿、兩份 docx
+- 第 9 頁韌體骨架改用**原生 PowerPoint 方塊圖**（節拍→once/loop→模組化 pipeline，SOC 估測模組綠色標示為三法掛載點），避免缺字型 tofu
+- 依使用者回饋多輪白話化＋強化：研究動機（兩缺口改口語）、三點貢獻（①改「讓公平比較成立的量測方法」、③改「首次同硬體公平基準＋決策表」，破解牽強感）、庫倫計數說明框（去術語）
+
+#### 🐛 問題與踩坑
+- **封面標題兩行重疊**：python-pptx 設 `line_spacing` 倍率擋不住——缺 Microsoft JhengHei 時替代字型行高被壓縮。改用**兩行各自獨立文字框、固定 Y 座標**才根治
+- **docx 封面書背壓住標題**（VML `<v:shape>` 直書框跑到頁面正中）：補 `mso-position-horizontal:absolute` token 仍無效（多檢視器都不吃）→ 最終**直接移除整個 `<w:pict>` 區塊**。教訓：VML 浮動框定位不可靠，書背交裝訂廠、別疊封面
+- **改 docx 別用 python-docx 整檔重存**：lxml 重新序列化會破壞 VML namespace。只改幾個字要用 `zipfile` 對 `word/document.xml` 原始字串 `str.replace()` 再 `writestr` 重打包，其餘 entry 原樣搬移
+- 本機 LibreOffice（樹莓派）轉 PDF 極慢／逾時，且對 VML 定位解讀與 Word 不同，預覽不可信
+
+#### 📋 待辦／提醒
+- 封面三項佔位待填：研究生姓名、指導教授（`[ ]` 佔位）
+- docx 待在 Word（標楷體環境）做最終視覺確認
+- 簡報數值與論文同步：EKF 精度、三法 footprint 仍為 [待測]
+- 詢問中：是否把第一章 1.3 三點貢獻、其他頁說明框同步白話化／把韌體骨架方塊圖補進論文當圖 3-2
+
 ### 2026/06/25（論文排版校正與 SCPI 段落同步）
 
 #### ✅ 完成項目
