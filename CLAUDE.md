@@ -39,6 +39,28 @@ The project is transitioning from a pure documentation/literature review phase i
 
 ## 今日總結
 
+### 2026/06/25（論文排版校正與 SCPI 段落同步）
+
+#### ✅ 完成項目
+- 下載中原大學官方論文範本（圖書館 `word_thesis_template.zip`，內含 2025-06-10 更新的 `論文中文範本1.docx`）與最新格式規範（113-2 學期 PDF），逐條核對主檔排版
+- 依規範＋範本修正主檔 `_20260625.docx` 四項排版：(1) 版面邊界改為規範值 上2／下2／左3／右2 cm；(2) 章標題 Heading 1 由 Word 預設藍 `2E74B5` 改黑；(3) 封面中文題目 16pt→22pt 並補左側直書書背（VML 浮動文字框，相對頁面絕對定位）；(4) 全文 166 處底線變數 `V_t`／`R_0` 等轉成 Word 真正下標/上標（共 186 run）
+- 確認規範符合項：裝訂次序、前置頁羅馬數字+正文阿拉伯數字、摘要中英分頁、A4、內文標楷體非粗體；剩 8 條分數/積分式（`(1)/(R_1 C_1)`、`∫` 上下限）留待 Word 方程式編輯器手排
+- 同步「SCPI 陷阱」段落：第三章 markdown 早已刪除 3.4 SCPI 自動化（含陷阱一 APPL／陷阱二 PSU-off 殘留電流）並重構，但 docx 仍為舊版；本次將 docx 對齊 markdown——刪 ch3 SCPI 整段（3.5 跨輪→3.4）、刪 ch5 5.4.1 儀錶段（5.4.2→5.4.1、5.4.3→5.4.2）、修 ch5 5.4 開頭/共通原則/小結與 ch6 結論共 4 處孤兒引用（「不信任指令即生效」原則隨之移除，三條→兩條）
+- ch5/ch6 的 markdown 與 docx 兩邊都改；docx 段落重建時以 `**` 解析保留粗體強調
+
+#### 🐛 問題與踩坑
+- `build_thesis.py` 不在 repo（在 Windows 那台、未 commit）→ 本機只能直接後製 docx；docx 與 markdown 需手動保持同步，落差目前僅侷限於 SCPI 段
+- python 腳本命名 `inspect.py` 會 shadow 標準庫導致 lxml 初始化 circular import；改名即解
+- python-docx 無法用 `OxmlElement('v:shape')`（VML `v:` namespace 未註冊）→ 改用 `parse_xml` 帶 nsdecls 手寫 VML
+- 書背 VML 定位：Word 對 `mso-position-horizontal:left` 關鍵字解讀與 LibreOffice 不同（LO 靠左、Word 跑到正中壓住標題）→ 改用 `margin-left/top` 絕對值相對 page 定位才穩
+- probe 偵測粗體用「`<w:b>` 標籤存在與否」會誤判（內文其實是 `w:val="0"`），須讀 val 才準
+
+#### 📋 明日待辦
+- 8 條分數/積分式用 Word 方程式編輯器重排
+- 封面三項（研究生姓名／系所全名／指導教授）、誌謝個人內容
+- EKF（4.2.5）精度、三方法 footprint（4.4）仍為 [待測]
+- docx 待在 Word（有標楷體環境）做最終視覺確認
+
 ### 2026/06/11（下午　論文全面修訂）
 
 #### ✅ 完成項目
