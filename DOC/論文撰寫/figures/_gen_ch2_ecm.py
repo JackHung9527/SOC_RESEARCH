@@ -36,7 +36,7 @@ def source(ax, x, y, label):
     ax.add_patch(Circle((x, y), 0.28, fc='white', ec=WIRE, lw=1.7, zorder=3))
     ax.text(x, y + 0.10, '+', ha='center', va='center', fontsize=13, zorder=4)
     ax.plot([x - 0.07, x + 0.07], [y - 0.11, y - 0.11], color=WIRE, lw=1.8, zorder=4)
-    ax.text(x, y - 0.62, label, ha='center', va='center', fontsize=11.5, zorder=4)
+    ax.text(x - 0.42, y, label, ha='right', va='center', fontsize=11.5, zorder=4)
 
 
 def rc_block(ax, xl, xr, ytop, rlabel, clabel):
@@ -57,7 +57,7 @@ def draw_circuit(ax, yc, n_rc, title):
     # source (vertical, left side)
     wire(ax, [(x_src, ybot), (x_src, ytop - 0.28)])
     wire(ax, [(x_src, ytop + 0.28), (x_src, ytop)])
-    source(ax, x_src, yc - 0.0 if False else (ytop + ybot)/2, r'$V_{OC}(SOC)$')
+    source(ax, x_src, yc - 0.0 if False else (ytop + ybot)/2, r'$V_{\mathrm{OC}}(\mathrm{SOC})$')
     # wait: place source circle between ytop and ybot on left rail
     # (handled above via source at midpoint)
     # R0
