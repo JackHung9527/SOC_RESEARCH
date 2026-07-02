@@ -59,7 +59,12 @@ SOC_RESEARCH/                              ← firmware-project root
         │   ├── i2c_bus/                   stm32-i2c-scaffold 產出（I2C1, sync HAL_I2C_Mem 抽象）
         │   ├── ina226/                    ★ pre-existing IC driver，遷入 USER_CODE/，內容未動
         │   ├── battery_monitor/           ★ pre-existing app 層，遷入 USER_CODE/，內容未動
-        │   └── soc_soh_calc/              ★ pre-existing 演算法 stub，遷入 USER_CODE/，內容未動
+        │   ├── soc_soh_calc/              ★ pre-existing 演算法 stub（已被 soc_zdyn 取代，擇期移除）
+        │   ├── ina_cal/                   INA226 多點線性內插電流校正＋last-page flash 儲存
+        │   ├── perf_cyc/                  SysTick cycle 計時（論文 4.4.3 每次更新運算量之量測儀器）
+        │   ├── soc_coulomb/               論文 4.1 庫倫計數（純整數，兼基準真值）
+        │   ├── soc_ekf/                   論文 4.2 一階 RC EKF（OCV 表佔位，待 GITT 回填）
+        │   └── soc_zdyn/                  論文 4.3 動態阻抗（表 4-3 實測係數＋庫倫內插）
         ├── Drivers/
         │   ├── CMSIS/                     vendored from STM32CubeG0 v1.6.2
         │   └── STM32G0xx_HAL_Driver/      同上 — 只剩 HAL/CMSIS（INA226 已搬到 USER_CODE/ina226/）
@@ -203,12 +208,47 @@ python3 SCRIPTS/flash_and_verify.py   # flash + 驗 boot banner + 60 s heartbeat
 
 ---
 
-## 5. 後續工作（依優先序）
+## 5. SOC 估測模組（論文第四章三法掛載，2026-07-02 導入）
+
+三種 SOC 估測方法各為獨立 USER_CODE 模組，同掛在 1 Hz heartbeat 節拍上
+（同電池、同量測路徑、同節拍 → 論文 4.0「公平比較」前提）；
+各自由 `model_set.h` 的 enable 旗標開關，供 4.4.3 footprint 相減量測：
+
+| 模組 | 論文節 | 開關 | 特性 |
+|------|--------|------|------|
+| `soc_coulomb` | 4.1 | `SOC_COULOMB_ENABLE` | 純整數（int64 µA·s 累加器），資源下界，兼逐 cycle 真值 |
+| `soc_ekf` | 4.2 | `SOC_EKF_ENABLE` | 一階 RC、狀態 [SOC, V1]、增益純量除法免矩陣求逆、Joseph 形式；OCV 表**佔位中（待 GITT）** |
+| `soc_zdyn` | 4.3 | `SOC_ZDYN_ENABLE` | 二次擬合反解（表 4-3 實測係數 a=20.2/b=−21.6/c=63.6 mΩ）＋事件間庫倫內插 |
+| `perf_cyc` | 4.4.3 | `SOC_PERF_ENABLE` | SysTick cycle 計時（M0+ 無 DWT），量測儀器、所有變體恆開 |
+
+UART 1 Hz 輸出（接在 alive 行後）：
+
+```
+[Ns] soc cc=99.87%(142cyc) ekf=99.21%(5321cyc) z=--(no event yet)
+```
+
+Host 端工具：
+
+```bash
+python3 SCRIPTS/footprint_report.py          # 5 變體建置 → MCU/docs/footprint_*.md（4.4.3 表）
+python3 SCRIPTS/gen_ocv_header.py <ocv_table_*.csv>   # GITT 完成後回填 OCV 表
+```
+
+首批 footprint（-Og、佔位 OCV 表；見 `docs/footprint_20260702.md`）：
+庫倫 +1124 B / EKF +1868 B / 動態阻抗 +1456 B flash（含各自掛載 glue），
+ΔRAM 皆 < 50 B，排序符合論文預期（EKF 最重、庫倫最輕）。
+
+---
+
+## 6. 後續工作（依優先序）
 
 - [x] HAL skeleton 從 STM32CubeG0 v1.6.2 vendored 進 Drivers/
 - [x] USER_CODE 框架 + uart_debug + i2c_bus driver 透過 firmware-project-builder skill 鏈導入
 - [x] UART 1 Hz 周期 log 量測值（i2c idle / ina absent 路徑已驗證 60 s monotonic）
-- [ ] INA226 sensor 接上後，驗證 `[Ns] alive V=...mV I=...mA P=...mW i2c=ok ina=present` 路徑
-- [ ] **Pending**：INA226 Current_LSB 點對點校正（搭配 IT6302 + 標準電流表）
-- [ ] **Pending**：動態阻抗法電流脈衝注入（IT8512A+ List Mode 控制）
-- [ ] **Pending**：投影法 SOH 容量積分追蹤
+- [x] INA226 Current_LSB 校正（14 點 LUT 燒 flash page 63，見 DOC/校正紀錄/）
+- [x] 三法 SOC 估測模組掛載（soc_coulomb / soc_ekf / soc_zdyn）＋ footprint 變體量測管線
+- [ ] 板子接回後燒錄，驗證 soc 狀態行與 (cyc) 實測值（`python3 SCRIPTS/flash_and_verify.py`）
+- [ ] **Pending**：GITT 跑完 → `gen_ocv_header.py` 回填 OCV 表；擾動段最小平方辨識 R0/R1/τ1 回填 MODEL_SET_SOC_EKF
+- [ ] **Pending**：EKF PC 端原型調參（Q/R），與韌體版對拍
+- [ ] **Pending**：初值錯誤恢復／C-rate 切換／噪聲抗性三項強健性測試（4.4.2）
+- [ ] soc_soh_calc 舊 stub 已被 soc_zdyn 取代（SOH 投影法退出論文範圍），擇期移除

@@ -39,6 +39,34 @@ The project is transitioning from a pure documentation/literature review phase i
 
 ## 今日總結
 
+### 2026/07/02（三種 SOC 估測法韌體實作＋圖 3-2＋論文進版）
+
+#### ✅ 完成項目
+- **三種 SOC 估測法全部落地 STM32G071 韌體**（USER_CODE 新增四模組）：
+  - `soc_coulomb`：純整數庫倫計數（int32 µA 輸入、int64 µA·s 累加器、SOC 0.01% 解析度），兼三法比較的 ground truth
+  - `soc_ekf`：一階 RC EKF（狀態 [SOC, V1]，ZOH 精確離散化、純量增益免矩陣求逆、Joseph form 共變異數、分段線性 OCV 查表＋段斜率 Jacobian）；OCV 表為佔位（`soc_ekf_ocv_table.h` 標記區，GITT 後由 `gen_ocv_header.py` 重生，佔位表數據不得入論文）
+  - `soc_zdyn`：動態阻抗法（1Hz 相鄰樣本抓 ΔV/ΔI 事件、|ΔI| 窗 300–4500 mA、二次式反解＋三層選根：錨點連續性→Z趨勢×電流方向→預設高根；內建 float 庫倫內插自足、可獨立編譯），係數用表 4-3 實測值 a=20.2/b=−21.6/c=63.6 mΩ
+  - `perf_cyc`：M0+ 無 DWT CYCCNT，用 SysTick 夾擠讀法（tick-stability do-while 處理 reload race）量每次 update 的 cycle 數
+- **Footprint 量測管線**（論文 4.4.3 依據）：enable 旗標全部 `#ifndef` 包裝、Makefile 加 `EXTRA_CFLAGS` hook，`SCRIPTS/footprint_report.py` 自動編 5 個變體做差分。首批數據（-Og）：base flash 60940/ram 4840；庫倫 +1124/+20、EKF +1868/+40、動態阻抗 +1456/+48、全開 +3904/+104
+- `userCode.c` 掛載：`soc_estimators_feed_1s()`（EKF 首筆電壓自 seed、每法 update 各自計 cycle）＋每秒一行 `soc cc=..% ekf=..% z=..%` UART 回報
+- **圖 3-2 韌體方塊圖**（`figures/_gen_ch3_fw.py`）：正式 matplotlib 圖檔，風格比照圖 3-1；第三章 markdown 3.2 補掛載關係段落＋插圖
+- **論文進版 `_20260702.docx`**：從 _20260625 複製後後製——3.2 收尾段補句、fig3-2 以模板複製法插入（deepcopy fig3-1 圖段/圖說段、改 rId/extent/docPr），md 與 docx 同步
+- 更新 `MCU/README.md`（§5 估測模組表＋UART 格式＋footprint 數據）、`project.yaml`（四模組入 scaffolded、soc_soh_calc 標 SUPERSEDED）
+
+#### 🐛 問題與踩坑
+- **產圖標籤重疊三連坑**（使用者退件「字跟圖不要重疊」）：箭頭標籤「中點＋偏移」放法會壓斜線／方塊角。修法：`arrow()` 改絕對座標 `lpos`＋幾何檢核（標籤全寬對箭頭線算 y、離線離框 ≥0.3 單位）；窄縫塞不下五字標籤時**改版面**（上下對調方塊讓四字標籤進窄縫）而非硬塞；產完必 Read PNG 目視。已寫入記憶 `figure-label-no-overlap.md`
+- python-docx `doc.part.get_or_add_image()` 回傳順序是 **(rId, image)** 不是 (image, rId)；rels 路徑是 `word/_rels/document.xml.rels`
+- docx 換圖 bytes 用 zipfile 重打包即可；長寬比沒變就不用動 extent
+- 樹莓派 venv 缺 matplotlib（pip 裝 3.11.0 via piwheels）；中文字型用 Noto Sans CJK TC 替代微軟正黑
+
+#### 📋 待辦
+- 板子接回後燒錄實測（`flash_and_verify.py`），取得三法每次 update 的實測 cycle 數填表 4-6
+- GITT 跑完 → `gen_ocv_header.py` 重生 OCV 表；脈衝最小平方辨識 R0/R1/τ1 填 MODEL_SET_SOC_EKF（現值全為 [待測] 佔位）
+- EKF PC 原型調 Q/R；4.4.2 強健性測試
+- `_20260702.docx` 待 Word 目視確認＋F9 更新圖目錄欄位
+- 舊 `soc_soh_calc` stub 移除
+- 封面三項、誌謝、第五六章仍未完
+
 ### 2026/06/25（口試簡報製作與封面／章節修正）
 
 #### ✅ 完成項目

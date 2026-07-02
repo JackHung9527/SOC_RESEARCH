@@ -43,6 +43,87 @@ PUTCHAR_PROTOTYPE
 }
 
 
+/* ---- SOC 三法掛載點（論文 4.0：同量測路徑、同節拍，每秒餵一次） ----
+ * 各方法由 model_set.h 的 SOC_*_ENABLE 個別開關；footprint 量測腳本
+ * (SCRIPTS/footprint_report.py) 據此產生「只有骨架」與「骨架＋單一方法」
+ * 變體相減取淨佔用（4.4.3）。每次更新以 perf_cyc 計 CPU cycles。 */
+#if SOC_COULOMB_ENABLE || SOC_EKF_ENABLE || SOC_ZDYN_ENABLE
+
+#if SOC_COULOMB_ENABLE
+static uint32_t s_cyc_cc;
+#endif
+#if SOC_EKF_ENABLE
+static uint32_t s_cyc_ekf;
+#endif
+#if SOC_ZDYN_ENABLE
+static uint32_t s_cyc_z;
+#endif
+
+static void soc_estimators_feed_1s(float i_ma, float v_mv)
+{
+	perf_cyc_t t;
+
+#if SOC_EKF_ENABLE
+	/* 開機後首筆有效樣本近似靜置 → 以 OCV 反查播種 EKF 初始 SOC */
+	static bool s_ekf_seeded = false;
+	if (!s_ekf_seeded)
+	{
+		soc_ekf_seed_from_voltage(v_mv);
+		s_ekf_seeded = true;
+	}
+#endif
+
+#if SOC_COULOMB_ENABLE
+	perf_cyc_begin(&t);
+	soc_coulomb_update_1s((int32_t)(i_ma * 1000.0f));   /* mA → µA */
+	s_cyc_cc = perf_cyc_end(&t);
+#endif
+#if SOC_EKF_ENABLE
+	perf_cyc_begin(&t);
+	soc_ekf_update_1s(i_ma, v_mv);
+	s_cyc_ekf = perf_cyc_end(&t);
+#endif
+#if SOC_ZDYN_ENABLE
+	perf_cyc_begin(&t);
+	soc_zdyn_update_1s(i_ma, v_mv);
+	s_cyc_z = perf_cyc_end(&t);
+#endif
+	(void)t;
+}
+
+static void soc_estimators_print(uint32_t seconds)
+{
+	uart_debug_printf("[%lus] soc", (unsigned long)seconds);
+#if SOC_COULOMB_ENABLE
+	uart_debug_printf(" cc=%.2f%%(%lucyc)",
+	                  (double)soc_coulomb_get_pct_x100() / 100.0,
+	                  (unsigned long)s_cyc_cc);
+#endif
+#if SOC_EKF_ENABLE
+	uart_debug_printf(" ekf=%.2f%%(%lucyc)",
+	                  (double)soc_ekf_get_soc_pct(),
+	                  (unsigned long)s_cyc_ekf);
+#endif
+#if SOC_ZDYN_ENABLE
+	if (soc_zdyn_has_estimate())
+	{
+		uart_debug_printf(" z=%.2f%%(n=%lu,%.1fmohm,%lucyc)",
+		                  (double)soc_zdyn_get_soc_pct(),
+		                  (unsigned long)soc_zdyn_get_event_count(),
+		                  (double)soc_zdyn_get_last_z_mohm(),
+		                  (unsigned long)s_cyc_z);
+	}
+	else
+	{
+		uart_debug_printf(" z=--(no event yet)");
+	}
+#endif
+	uart_debug_printf("\r\n");
+}
+
+#endif /* any SOC method enabled */
+
+
 /* add in int main() */
 void once(void)
 {
@@ -56,6 +137,15 @@ void once(void)
 	i2c_bus_init();
 	ina_cal_init();
 	ina_cal_uart_attach();
+#if SOC_COULOMB_ENABLE
+	soc_coulomb_init();
+#endif
+#if SOC_EKF_ENABLE
+	soc_ekf_init();
+#endif
+#if SOC_ZDYN_ENABLE
+	soc_zdyn_init();
+#endif
 	/* === USER_INIT_CALLS END === */
 
 	/* ---- one-shot boot banner (grep-able by SCRIPTS/flash_and_verify.py) ---- */
@@ -129,6 +219,12 @@ void loop(void)
 					                  (double)snap.current_ma,
 					                  (double)snap.power_mw);
 				}
+
+#if SOC_COULOMB_ENABLE || SOC_EKF_ENABLE || SOC_ZDYN_ENABLE
+				/* cal 未載入時 ina_cal_apply() 為 identity，仍照餵（見 ina_cal.h） */
+				soc_estimators_feed_1s(i_cal, snap.bus_v_mv);
+				soc_estimators_print(s_seconds);
+#endif
 			}
 			else
 			{

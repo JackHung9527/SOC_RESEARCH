@@ -43,6 +43,10 @@
 #include "battery_monitor/battery_monitor.h"
 #include "ina_cal/ina_cal.h"
 #include "soc_soh_calc/soc_soh_calc.h"
+#include "perf_cyc/perf_cyc.h"
+#include "soc_coulomb/soc_coulomb.h"
+#include "soc_ekf/soc_ekf.h"
+#include "soc_zdyn/soc_zdyn.h"
 /* === USER_DRIVERS END === */
 
 

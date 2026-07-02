@@ -36,6 +36,10 @@ C_SOURCES =                                                       \
   USER_CODE/battery_monitor/battery_monitor.c                     \
   USER_CODE/ina_cal/ina_cal.c                                     \
   USER_CODE/soc_soh_calc/soc_soh_calc.c                           \
+  USER_CODE/perf_cyc/perf_cyc.c                                   \
+  USER_CODE/soc_coulomb/soc_coulomb.c                             \
+  USER_CODE/soc_ekf/soc_ekf.c                                     \
+  USER_CODE/soc_zdyn/soc_zdyn.c                                   \
   Drivers/CMSIS/Device/ST/STM32G0xx/Source/Templates/system_stm32g0xx.c \
   Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal.c                \
   Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_cortex.c         \
@@ -97,6 +101,10 @@ C_INCLUDES = \
   -IUSER_CODE/ina226 \
   -IUSER_CODE/battery_monitor \
   -IUSER_CODE/soc_soh_calc \
+  -IUSER_CODE/perf_cyc \
+  -IUSER_CODE/soc_coulomb \
+  -IUSER_CODE/soc_ekf \
+  -IUSER_CODE/soc_zdyn \
   -IDrivers/STM32G0xx_HAL_Driver/Inc \
   -IDrivers/STM32G0xx_HAL_Driver/Inc/Legacy \
   -IDrivers/CMSIS/Device/ST/STM32G0xx/Include \
@@ -116,6 +124,10 @@ endif
 
 # Generate dep info
 CFLAGS += -MMD -MP -MF"$(@:%.o=%.d)"
+
+# footprint 變體建置掛鉤（SCRIPTS/footprint_report.py 用）：
+#   make EXTRA_CFLAGS="-DSOC_EKF_ENABLE=0 -DSOC_ZDYN_ENABLE=0 ..."
+CFLAGS += $(EXTRA_CFLAGS)
 
 # ---------------------------------------------------------------------------
 # Linker

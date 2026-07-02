@@ -47,8 +47,12 @@ state:
     - ina226                         # pre-existing, relocated to USER_CODE, source unchanged
     - battery_monitor                # pre-existing, relocated to USER_CODE, source unchanged
     - soc_soh_calc                   # pre-existing, relocated to USER_CODE, source unchanged
-  last_build: 2026-05-07T01:47:00
-  last_flash: 2026-05-07T01:48:00
+    - perf_cyc                       # hand-written 2026-07-02 (SysTick cycle timer, thesis 4.4.3 instrument)
+    - soc_coulomb                    # hand-written 2026-07-02 (thesis 4.1, integer coulomb counting)
+    - soc_ekf                        # hand-written 2026-07-02 (thesis 4.2, 1st-order RC EKF + OCV LUT)
+    - soc_zdyn                       # hand-written 2026-07-02 (thesis 4.3, dynamic impedance + coulomb interp)
+  last_build: 2026-07-02T00:00:00    # full variant (all three SOC methods enabled)
+  last_flash: 2026-05-07T01:48:00    # board not attached on 2026-07-02; flash pending
   notes:
     proj_init_method: manual-equivalent
     proj_init_reason: |
@@ -126,17 +130,60 @@ drivers:
     notes: |
       Pre-existing SOC/SOH algorithm stub. Relocated from MCU/App/ to
       MCU/soc_research_mcu/USER_CODE/soc_soh_calc/. Source unchanged.
-      Algorithm fill is pending INA226 hardware connection and bench
-      calibration (see open_questions and `algorithm.status`).
+      SUPERSEDED 2026-07-02: dynamic-impedance SOC now lives in soc_zdyn
+      (with real fitted coefficients); projection SOH was dropped from the
+      thesis scope. Kept for reference; removal is a follow-up.
+  perf_cyc:
+    type: generic
+    multi_instance: false
+    period_ms: null
+    notes: |
+      SysTick-based CPU cycle timer (Cortex-M0+ has no DWT CYCCNT).
+      Instrument for thesis 4.4.3 "per-update CPU cycles"; gated by
+      SOC_PERF_ENABLE (kept =1 in every footprint variant so its own cost
+      cancels in the subtraction).
+  soc_coulomb:
+    type: generic
+    multi_instance: false
+    period_ms: 1000
+    notes: |
+      Thesis 4.1 coulomb counting (doubles as per-cycle ground truth).
+      Integer-only: int32 µA in, int64 µA·s accumulator, SOC out at 0.01%
+      resolution. Gated by SOC_COULOMB_ENABLE. Params in MODEL_SET_SOC_COULOMB.
+  soc_ekf:
+    type: generic
+    multi_instance: false
+    period_ms: 1000
+    notes: |
+      Thesis 4.2 EKF, 1st-order RC (Thevenin), state [SOC, V1], scalar-gain
+      update (no matrix inverse), Joseph-form covariance, soft-float.
+      OCV table in soc_ekf_ocv_table.h is a PLACEHOLDER (generic NMC shape)
+      until the GITT run (TEST/gitt_ocv_runner.py) produces ocv_table_*.csv;
+      regenerate with SCRIPTS/gen_ocv_header.py. R0/R1/tau1 + Q/R in
+      MODEL_SET_SOC_EKF are [待測] placeholders pending pulse-fit ident.
+      Gated by SOC_EKF_ENABLE.
+  soc_zdyn:
+    type: generic
+    multi_instance: false
+    period_ms: 1000
+    notes: |
+      Thesis 4.3 dynamic impedance. |ΔV/ΔI|–SOC quadratic with MEASURED
+      merged-fit coefficients a=20.2 b=-21.6 c=63.6 mΩ (table 4-3,
+      fresh-cell rounds 1-3). Perturbation event detect on 1 Hz samples
+      (|ΔI| in [300, 4500] mA window per protocol 0.2C step), quadratic
+      root + branch select, internal float coulomb interpolation between
+      events (self-contained so its footprint variant builds standalone).
+      Gated by SOC_ZDYN_ENABLE. Params in MODEL_SET_SOC_ZDYN.
 
 build:
   toolchain: arm-none-eabi-gcc 12.2.1
   optimization: -Og -g
-  elf_size:
-    text: 47900
-    data: 488
-    bss: 4152
-    total: 52540                     # ~41% of 128 KB Flash, ~11% of 36 KB RAM
+  elf_size:                          # full variant, 2026-07-02 (all 3 SOC methods on)
+    text: 64348
+    data: 496
+    bss: 4448
+    total: 69292                     # ~51% of 128 KB Flash, ~13% of 36 KB RAM
+  footprint_variants: MCU/docs/footprint_20260702.md   # SCRIPTS/footprint_report.py output
   warnings: 10                       # all from skill-supplied USER_CODE/model_set.h template:
                                      #   "/*" within comment (cosmetic, lines 35/37)
   ld_flags_added: ["-u _printf_float"]
