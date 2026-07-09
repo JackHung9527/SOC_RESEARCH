@@ -46,7 +46,10 @@ class Phase2Params:
     rate_C: float = 0.5
     perturb_period_s: int = 60    # inject a current step every N seconds
     perturb_low_C: float = 0.2    # step down to 0.2 C briefly
-    perturb_dwell_s: float = 1.0  # hold each level for this long
+    # 2026-07-07: 1.0 → 3.0 s。Round 40 實測：SCPI 命令延遲使實際低電流
+    # 期已 ≈2–3 s，板端 1 Hz 才抓得到穩定 dwell 樣本；改成顯式 3 s 讓
+    # 這件事不再依賴命令延遲（板端保證 ≥2 個乾淨 dwell 樣本）。
+    perturb_dwell_s: float = 3.0  # hold each level for this long
     pre_rest_s: int = 60          # OCV settle time before discharge starts
 
 

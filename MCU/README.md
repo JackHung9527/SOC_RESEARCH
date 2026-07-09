@@ -217,8 +217,8 @@ python3 SCRIPTS/flash_and_verify.py   # flash + 驗 boot banner + 60 s heartbeat
 | 模組 | 論文節 | 開關 | 特性 |
 |------|--------|------|------|
 | `soc_coulomb` | 4.1 | `SOC_COULOMB_ENABLE` | 純整數（int64 µA·s 累加器），資源下界，兼逐 cycle 真值 |
-| `soc_ekf` | 4.2 | `SOC_EKF_ENABLE` | 一階 RC、狀態 [SOC, V1]、增益純量除法免矩陣求逆、Joseph 形式；OCV 表**佔位中（待 GITT）** |
-| `soc_zdyn` | 4.3 | `SOC_ZDYN_ENABLE` | 二次擬合反解（表 4-3 實測係數 a=20.2/b=−21.6/c=63.6 mΩ）＋事件間庫倫內插 |
+| `soc_ekf` | 4.2 | `SOC_EKF_ENABLE` | 一階 RC、狀態 [SOC, V1]、增益純量除法免矩陣求逆、Joseph 形式；OCV 表為 GITT 實測（2026-07-05），R0/R1/τ1 實測辨識（R0 為電池端域 51.9 mΩ） |
+| `soc_zdyn` | 4.3 | `SOC_ZDYN_ENABLE` | 二次擬合反解（板端域係數 a=18.0/b=−21.1/c=39.6 mΩ，Round 40 重擬合）＋事件間庫倫內插＋放電向事件過濾；線上單獨反解經實測確認病態（論文 4.3.4） |
 | `perf_cyc` | 4.4.3 | `SOC_PERF_ENABLE` | SysTick cycle 計時（M0+ 無 DWT），量測儀器、所有變體恆開 |
 
 UART 1 Hz 輸出（接在 alive 行後）：
@@ -234,9 +234,11 @@ python3 SCRIPTS/footprint_report.py          # 5 變體建置 → MCU/docs/footp
 python3 SCRIPTS/gen_ocv_header.py <ocv_table_*.csv>   # GITT 完成後回填 OCV 表
 ```
 
-首批 footprint（-Og、佔位 OCV 表；見 `docs/footprint_20260702.md`）：
-庫倫 +1124 B / EKF +1868 B / 動態阻抗 +1456 B flash（含各自掛載 glue），
-ΔRAM 皆 < 50 B，排序符合論文預期（EKF 最重、庫倫最輕）。
+最終 footprint（-Og、GITT 實測 OCV 表＋充飽重錨＋SOC CLI；見 `docs/footprint_20260707.md`）：
+庫倫 +1892 B / EKF +2336 B / 動態阻抗 +1540 B flash（含各自掛載 glue 與附屬 CLI），
+ΔRAM 合計 112 B（嚴格可加），排序符合論文預期（EKF 最重、庫倫最輕）。
+另備：充飽自動重錨（V>4.15 V 且 |I|<20 mA 持續 60 s → cc 錨 100%）與 UART CLI
+（SOC_ANCHOR / SOC_SET / SOC_EKF_SET，非 SOC 命令轉發校正 CLI）。
 
 ---
 

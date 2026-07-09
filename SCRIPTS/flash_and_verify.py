@@ -144,7 +144,7 @@ def main() -> int:
     # In present mode, also sanity-check that V/I/P fields are populated and
     # V is in a plausible Li-ion range.
     sample_re = re.compile(
-        r"\[(\d+)s\] alive V=([\-\d.]+)mV I=([\-\d.]+)mA P=([\-\d.]+)mW"
+        r"\[(\d+)s\] alive V=([\-\d.]+)mV I=([\-\d.]+)mA (?:Ical=[\-\d.]+mA )?P=([\-\d.]+)mW"
     )
     samples = [
         (int(m.group(1)), float(m.group(2)) / 1000.0,

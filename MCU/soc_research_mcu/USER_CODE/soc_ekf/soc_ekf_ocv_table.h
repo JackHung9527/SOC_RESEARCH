@@ -1,12 +1,17 @@
 /*
  * soc_ekf_ocv_table.h — pseudo-OCV 對照表 V_OC(SOC)。
  *
- * ⚠ 目前為 **佔位表（PLACEHOLDER）**：GITT 量測（TEST/gitt_ocv_runner.py）
- *   尚未執行，下表為一般 NMC 化學之典型 OCV 形狀，僅供韌體開發與
- *   footprint 量測；**論文 4.2.5 精度數據不得以此表產生**。
+ * ✔ GITT 實測表（2026-07-05 執行，TEST/gitt_ocv_runner.py，放電單向、
+ *   5% 步進 × 30 min 鬆弛）。來源點：summary 之 v_eq（SoC 4.88%–100%，
+ *   含滿電 CV 後 30 min 鬆弛之 100% 錨點）。
  *
- * GITT 完成後用產生器回填（會整檔覆寫 OCV_TABLE marker 之間內容）：
- *     python3 SCRIPTS/gen_ocv_header.py <ocv_table_*.csv> \
+ * 量測範圍注意：
+ *   - SoC < 4.88% 無實測點（末步觸 2.5 V 化學下限中止），0% 節點為
+ *     邊界外插（近似持平），該段雅可比偏小，低 SoC 收斂較慢屬預期。
+ *   - 100% 節點因邊緣平滑略低於實測錨點（4.1630 vs 4.1752 V）。
+ *
+ * 重生方式（會整檔覆寫 OCV_TABLE marker 之間內容）：
+ *     python3 SCRIPTS/gen_ocv_header.py TEST/data/ocv_table_20260705_215850.csv \
  *         --out MCU/soc_research_mcu/USER_CODE/soc_ekf/soc_ekf_ocv_table.h
  *
  * 表規格：SOC 等距 5% × 21 點、V 單位 V；MCU 端分段線性內插（4.2.2），
@@ -18,23 +23,23 @@
 #define SOC_EKF_OCV_TABLE_H_
 
 /* === OCV_TABLE BEGIN (auto-generated region; gen_ocv_header.py 覆寫) === */
-/* source: PLACEHOLDER (generic NMC shape) — awaiting GITT run */
+/* source: ocv_table_20260705_215850.csv  col=v_pseudo_ocv  step=5%  smooth=5 */
 #define SOC_EKF_OCV_N  21U
 
 /* SOC 節點（0..1 分數，等距 5%） */
 static const float SOC_EKF_OCV_SOC[SOC_EKF_OCV_N] =
 {
-    0.00f, 0.05f, 0.10f, 0.15f, 0.20f, 0.25f, 0.30f, 0.35f, 0.40f, 0.45f,
-    0.50f, 0.55f, 0.60f, 0.65f, 0.70f, 0.75f, 0.80f, 0.85f, 0.90f, 0.95f,
-    1.00f
+    0.0000f, 0.0500f, 0.1000f, 0.1500f, 0.2000f, 0.2500f, 0.3000f, 0.3500f, 0.4000f, 0.4500f,
+    0.5000f, 0.5500f, 0.6000f, 0.6500f, 0.7000f, 0.7500f, 0.8000f, 0.8500f, 0.9000f, 0.9500f,
+    1.0000f
 };
 
-/* V_OC（V）— PLACEHOLDER，待 GITT 實測回填 */
+/* V_OC（V）— GITT 實測（ocv_table_20260705_215850.csv） */
 static const float SOC_EKF_OCV_V[SOC_EKF_OCV_N] =
 {
-    3.20f, 3.45f, 3.55f, 3.62f, 3.66f, 3.69f, 3.72f, 3.74f, 3.76f, 3.78f,
-    3.80f, 3.83f, 3.86f, 3.90f, 3.94f, 3.98f, 4.02f, 4.06f, 4.10f, 4.15f,
-    4.19f
+    3.2206f, 3.2535f, 3.4422f, 3.4917f, 3.5156f, 3.5556f, 3.5884f, 3.6146f, 3.6355f, 3.6549f,
+    3.6777f, 3.7057f, 3.7398f, 3.7815f, 3.8381f, 3.9029f, 3.9550f, 4.0056f, 4.0586f, 4.1149f,
+    4.1630f
 };
 /* === OCV_TABLE END === */
 

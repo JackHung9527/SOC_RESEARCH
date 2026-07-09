@@ -1,0 +1,447 @@
+
+============================================================
+Active battery profile: custom NMC, 1665 mAh measured (datasheet 2000 mAh, derated per Round 1 baseline)
+  chemistry: li-ion-nmc (Li-ion NMC/NCA (typical 18650/21700))
+  Q_rated = 1665 mAh
+  charge: V_cv=4.200 V  I_cc=0.833 A  I_term=0.050 A
+  discharge: V_cutoff=2.500 V  I_cc=0.833 A
+  chemistry envelope: V_abs=[2.5, 4.25] V
+============================================================
+
+================================================================
+GITT pseudo-OCV builder — battery: custom NMC, 1665 mAh measured (datasheet 2000 mAh, derated per Round 1 baseline)
+================================================================
+  step size       : 5.00%  (83.25 mAh)
+  rest per step   : 30 min
+  C-rate (CC)     : 0.50C  (0.833 A)
+  V_cv / V_cutoff : 4.200 V / 2.500 V
+  steps per dir   : 20
+  V_eq window     : last 30 s of rest
+  dV/dt window    : last 5 min of rest
+
+  PHASE 1 precharge (upper bound) ≈ 2.5 h
+  PHASE 2 discharge GITT          ≈ 10.0 h
+  PHASE 3 final CC charge to 3.90 V ≈ 1.4 h (no charge-direction GITT)
+  TOTAL (upper bound)             ≈ 13.9 h
+  start: 2026-07-05 21:58  → ETA: 2026-07-06 11:52 Mon
+
+[gitt] trace   → /home/jackhung/Desktop/AI/SOC_RESEARCH/TEST/data/gitt_trace_20260705_215850.csv
+[gitt] summary → /home/jackhung/Desktop/AI/SOC_RESEARCH/TEST/data/gitt_summary_20260705_215850.csv
+[gitt] ocv     → /home/jackhung/Desktop/AI/SOC_RESEARCH/TEST/data/ocv_table_20260705_215850.csv
+[gitt] PSU : ITECH Electronics, IT6302, 800071020787770289, 1.05-1.04
+[gitt] LOAD: ITECH Ltd., IT8512A, 802143041797470044, 1.57
+
+================================================================
+ PHASE 1/3 — pre-charge to full
+================================================================
+  [precharge] CC-CV  I_cc=0.833 A  V_cv=4.200 V  I_term=0.167 A (0.10C)
+[bench] CHARGING (PSU CH1 ON, load verified OFF)
+    t=   0.0s  V=3.9127  I=+0.8322  [precharge_cc]
+    t= 210.9s  V=3.9831  I=+0.8322  [precharge_cc]
+    t= 270.7s  V=3.9926  I=+0.8321  [precharge_cc]
+    t= 330.6s  V=4.0017  I=+0.8321  [precharge_cc]
+    t= 390.5s  V=4.0105  I=+0.8321  [precharge_cc]
+    t= 450.4s  V=4.0193  I=+0.8321  [precharge_cc]
+    t= 510.3s  V=4.0276  I=+0.8321  [precharge_cc]
+    t= 570.3s  V=4.0361  I=+0.8321  [precharge_cc]
+    t= 630.2s  V=4.0447  I=+0.8321  [precharge_cc]
+    t= 690.1s  V=4.0530  I=+0.8321  [precharge_cc]
+    t=1140.9s  V=4.1173  I=+0.8321  [precharge_cc]
+    t=1200.9s  V=4.1262  I=+0.8321  [precharge_cc]
+    t=1260.8s  V=4.1352  I=+0.8321  [precharge_cc]
+    t=1320.6s  V=4.1441  I=+0.8321  [precharge_cc]
+    t=1380.6s  V=4.1533  I=+0.8321  [precharge_cc]
+    t=1440.7s  V=4.1621  I=+0.8321  [precharge_cc]
+    t=1500.8s  V=4.1709  I=+0.8321  [precharge_cc]
+    t=1560.7s  V=4.1797  I=+0.8321  [precharge_cc]
+    t=1620.9s  V=4.1890  I=+0.8321  [precharge_cc]
+    t=1770.1s  V=4.2020  I=+0.7287  [precharge_cv]
+    t=1830.1s  V=4.2017  I=+0.6470  [precharge_cv]
+    t=2370.0s  V=4.2015  I=+0.2555  [precharge_cv]
+    t=2430.1s  V=4.2019  I=+0.2304  [precharge_cv]
+    t=2490.2s  V=4.2019  I=+0.2111  [precharge_cv]
+    t=2550.3s  V=4.2015  I=+0.1942  [precharge_cv]
+    t=2610.1s  V=4.2016  I=+0.1767  [precharge_cv]
+    → PRECHARGE TERM (V=4.2016≥4.100, I=0.1647≤0.167, held 5.2s)
+[bench] PSU OFF, COOLDOWN 5.0 s
+[gitt] precharge done: V 3.9127 → 4.2016 (term)
+
+  [precharge → discharge GITT] settle rest at full SoC
+    [rest precharge_rest] 30 min (PSU/Load both OFF — cell relaxing)
+    rest:   5.0/30 min  V=4.18210
+    rest:  10.1/30 min  V=4.17978
+    rest:  15.1/30 min  V=4.17808
+    rest:  20.1/30 min  V=4.17701
+    rest:  25.1/30 min  V=4.17605
+    rest done: V_eq=4.17522 V  |dV/dt|_last5min=0.162 mV/min
+
+================================================================
+ PHASE 2/3 — discharge GITT  (20 × 5.0%)
+================================================================
+
+----------------------------------------------------------------
+  GITT step  1  discharge  I_cc=0.833 A  Q_target=83.2 mAh  (SoC 100.00% → ~95.00%)
+[bench] cooldown complete → IDLE
+[bench] DISCHARGING (load INP ON, PSU verified OFF)
+    t=  0.0s  V=4.1218  I=+0.8299  q=   0.0/83.2 mAh  [discharge]
+    t=211.0s  V=4.0642  I=+0.8299  q=  48.6/83.2 mAh  [discharge]
+    t=270.9s  V=4.0536  I=+0.8299  q=  62.4/83.2 mAh  [discharge]
+    t=330.9s  V=4.0435  I=+0.8299  q=  76.3/83.2 mAh  [discharge]
+[bench] LOAD OFF, COOLDOWN 5.0 s
+    step done: q=83.49 mAh  V_loaded_end=4.0382  SoC→94.99%  note=q_reached
+    [rest step1] 30 min (PSU/Load both OFF — cell relaxing)
+    rest:   5.0/30 min  V=4.11173
+    rest:  10.1/30 min  V=4.11310
+    rest:  15.1/30 min  V=4.11346
+    rest:  20.1/30 min  V=4.11386
+    rest:  25.1/30 min  V=4.11429
+    rest done: V_eq=4.11417 V  |dV/dt|_last5min=0.014 mV/min
+
+----------------------------------------------------------------
+  GITT step  2  discharge  I_cc=0.833 A  Q_target=83.2 mAh  (SoC 94.99% → ~89.99%)
+[bench] cooldown complete → IDLE
+[bench] DISCHARGING (load INP ON, PSU verified OFF)
+    t=  0.0s  V=4.0597  I=+0.8296  q=   0.0/83.2 mAh  [discharge]
+    t=270.9s  V=3.9941  I=+0.8297  q=  62.4/83.2 mAh  [discharge]
+    t=330.7s  V=3.9845  I=+0.8296  q=  76.2/83.2 mAh  [discharge]
+[bench] LOAD OFF, COOLDOWN 5.0 s
+    step done: q=83.42 mAh  V_loaded_end=3.9796  SoC→89.98%  note=q_reached
+    [rest step2] 30 min (PSU/Load both OFF — cell relaxing)
+    rest:   5.0/30 min  V=4.05456
+    rest:  10.1/30 min  V=4.05614
+    rest:  15.1/30 min  V=4.05704
+    rest:  20.1/30 min  V=4.05739
+    rest:  25.1/30 min  V=4.05805
+    rest done: V_eq=4.05794 V  |dV/dt|_last5min=0.024 mV/min
+
+----------------------------------------------------------------
+  GITT step  3  discharge  I_cc=0.833 A  Q_target=83.2 mAh  (SoC 89.98% → ~84.98%)
+[bench] cooldown complete → IDLE
+[bench] DISCHARGING (load INP ON, PSU verified OFF)
+    t=  0.0s  V=4.0041  I=+0.8296  q=   0.0/83.2 mAh  [discharge]
+    t=150.9s  V=3.9588  I=+0.8296  q=  34.8/83.2 mAh  [discharge]
+    t=210.8s  V=3.9486  I=+0.8296  q=  48.6/83.2 mAh  [discharge]
+    t=270.6s  V=3.9390  I=+0.8296  q=  62.4/83.2 mAh  [discharge]
+    t=330.5s  V=3.9297  I=+0.8296  q=  76.2/83.2 mAh  [discharge]
+[bench] LOAD OFF, COOLDOWN 5.0 s
+    step done: q=83.36 mAh  V_loaded_end=3.9248  SoC→84.97%  note=q_reached
+    [rest step3] 30 min (PSU/Load both OFF — cell relaxing)
+    rest:   5.0/30 min  V=4.00100
+    rest:  10.1/30 min  V=4.00259
+    rest:  15.1/30 min  V=4.00360
+    rest:  20.1/30 min  V=4.00432
+    rest:  25.1/30 min  V=4.00454
+    rest done: V_eq=4.00496 V  |dV/dt|_last5min=0.043 mV/min
+
+----------------------------------------------------------------
+  GITT step  4  discharge  I_cc=0.833 A  Q_target=83.2 mAh  (SoC 84.97% → ~79.97%)
+[bench] cooldown complete → IDLE
+[bench] DISCHARGING (load INP ON, PSU verified OFF)
+    t=  0.0s  V=3.9512  I=+0.8296  q=   0.0/83.2 mAh  [discharge]
+    t=150.9s  V=3.9049  I=+0.8296  q=  34.8/83.2 mAh  [discharge]
+    t=210.8s  V=3.8948  I=+0.8296  q=  48.6/83.2 mAh  [discharge]
+    t=270.7s  V=3.8853  I=+0.8295  q=  62.4/83.2 mAh  [discharge]
+    t=330.6s  V=3.8757  I=+0.8295  q=  76.2/83.2 mAh  [discharge]
+[bench] LOAD OFF, COOLDOWN 5.0 s
+    step done: q=83.37 mAh  V_loaded_end=3.8707  SoC→79.96%  note=q_reached
+    [rest step4] 30 min (PSU/Load both OFF — cell relaxing)
+    rest:   5.0/30 min  V=3.95051
+    rest:  10.1/30 min  V=3.95207
+    rest:  15.1/30 min  V=3.95314
+    rest:  20.1/30 min  V=3.95381
+    rest:  25.1/30 min  V=3.95432
+    rest done: V_eq=3.95457 V  |dV/dt|_last5min=0.043 mV/min
+
+----------------------------------------------------------------
+  GITT step  5  discharge  I_cc=0.833 A  Q_target=83.2 mAh  (SoC 79.96% → ~74.96%)
+[bench] cooldown complete → IDLE
+[bench] DISCHARGING (load INP ON, PSU verified OFF)
+    t=  0.0s  V=3.9013  I=+0.8295  q=   0.0/83.2 mAh  [discharge]
+    t=210.9s  V=3.8374  I=+0.8295  q=  48.6/83.2 mAh  [discharge]
+    t=270.9s  V=3.8265  I=+0.8296  q=  62.4/83.2 mAh  [discharge]
+    t=330.8s  V=3.8157  I=+0.8296  q=  76.2/83.2 mAh  [discharge]
+[bench] LOAD OFF, COOLDOWN 5.0 s
+    step done: q=83.44 mAh  V_loaded_end=3.8101  SoC→74.95%  note=q_reached
+    [rest step5] 30 min (PSU/Load both OFF — cell relaxing)
+    rest:   5.0/30 min  V=3.89803
+    rest:  10.1/30 min  V=3.90099
+    rest:  15.1/30 min  V=3.90262
+    rest:  20.1/30 min  V=3.90359
+    rest:  25.1/30 min  V=3.90420
+    rest done: V_eq=3.90460 V  |dV/dt|_last5min=0.063 mV/min
+
+----------------------------------------------------------------
+  GITT step  6  discharge  I_cc=0.833 A  Q_target=83.2 mAh  (SoC 74.95% → ~69.95%)
+[bench] cooldown complete → IDLE
+[bench] DISCHARGING (load INP ON, PSU verified OFF)
+    t=  0.0s  V=3.8513  I=+0.8296  q=   0.0/83.2 mAh  [discharge]
+    t=210.9s  V=3.7760  I=+0.8295  q=  48.6/83.2 mAh  [discharge]
+    t=270.8s  V=3.7653  I=+0.8295  q=  62.4/83.2 mAh  [discharge]
+    t=330.6s  V=3.7552  I=+0.8295  q=  76.2/83.2 mAh  [discharge]
+[bench] LOAD OFF, COOLDOWN 5.0 s
+    step done: q=83.38 mAh  V_loaded_end=3.7502  SoC→69.94%  note=q_reached
+    [rest step6] 30 min (PSU/Load both OFF — cell relaxing)
+    rest:   5.0/30 min  V=3.82892
+    rest:  10.1/30 min  V=3.83237
+    rest:  15.1/30 min  V=3.83374
+    rest:  20.1/30 min  V=3.83471
+    rest:  25.1/30 min  V=3.83550
+    rest done: V_eq=3.83596 V  |dV/dt|_last5min=0.091 mV/min
+
+----------------------------------------------------------------
+  GITT step  7  discharge  I_cc=0.833 A  Q_target=83.2 mAh  (SoC 69.94% → ~64.94%)
+[bench] cooldown complete → IDLE
+[bench] DISCHARGING (load INP ON, PSU verified OFF)
+    t=  0.0s  V=3.7825  I=+0.8295  q=   0.0/83.2 mAh  [discharge]
+    t=150.9s  V=3.7317  I=+0.8293  q=  34.8/83.2 mAh  [discharge]
+    t=210.8s  V=3.7225  I=+0.8293  q=  48.6/83.2 mAh  [discharge]
+    t=270.7s  V=3.7139  I=+0.8293  q=  62.4/83.2 mAh  [discharge]
+    t=330.5s  V=3.7058  I=+0.8293  q=  76.2/83.2 mAh  [discharge]
+[bench] LOAD OFF, COOLDOWN 5.0 s
+    step done: q=83.35 mAh  V_loaded_end=3.7016  SoC→64.94%  note=q_reached
+    [rest step7] 30 min (PSU/Load both OFF — cell relaxing)
+    rest:   5.0/30 min  V=3.77466
+    rest:  10.1/30 min  V=3.77641
+    rest:  15.1/30 min  V=3.77720
+    rest:  20.1/30 min  V=3.77798
+    rest:  25.1/30 min  V=3.77857
+    rest done: V_eq=3.77895 V  |dV/dt|_last5min=0.071 mV/min
+
+----------------------------------------------------------------
+  GITT step  8  discharge  I_cc=0.833 A  Q_target=83.2 mAh  (SoC 64.94% → ~59.94%)
+[bench] cooldown complete → IDLE
+[bench] DISCHARGING (load INP ON, PSU verified OFF)
+    t=  0.0s  V=3.7259  I=+0.8295  q=   0.0/83.2 mAh  [discharge]
+    t=150.9s  V=3.6865  I=+0.8293  q=  34.8/83.2 mAh  [discharge]
+    t=210.8s  V=3.6786  I=+0.8293  q=  48.6/83.2 mAh  [discharge]
+    t=270.7s  V=3.6712  I=+0.8293  q=  62.4/83.2 mAh  [discharge]
+    t=330.5s  V=3.6641  I=+0.8293  q=  76.2/83.2 mAh  [discharge]
+[bench] LOAD OFF, COOLDOWN 5.0 s
+    step done: q=83.35 mAh  V_loaded_end=3.6607  SoC→59.93%  note=q_reached
+    [rest step8] 30 min (PSU/Load both OFF — cell relaxing)
+    rest:   5.0/30 min  V=3.73408
+    rest:  10.1/30 min  V=3.73576
+    rest:  15.1/30 min  V=3.73686
+    rest:  20.1/30 min  V=3.73740
+    rest:  25.1/30 min  V=3.73812
+    rest done: V_eq=3.73845 V  |dV/dt|_last5min=0.051 mV/min
+
+----------------------------------------------------------------
+  GITT step  9  discharge  I_cc=0.833 A  Q_target=83.2 mAh  (SoC 59.93% → ~54.93%)
+[bench] cooldown complete → IDLE
+[bench] DISCHARGING (load INP ON, PSU verified OFF)
+    t=  0.0s  V=3.6857  I=+0.8293  q=   0.0/83.2 mAh  [discharge]
+    t=150.9s  V=3.6481  I=+0.8293  q=  34.8/83.2 mAh  [discharge]
+    t=210.8s  V=3.6411  I=+0.8295  q=  48.6/83.2 mAh  [discharge]
+    t=270.6s  V=3.6346  I=+0.8295  q=  62.3/83.2 mAh  [discharge]
+    t=330.5s  V=3.6285  I=+0.8293  q=  76.1/83.2 mAh  [discharge]
+[bench] LOAD OFF, COOLDOWN 5.0 s
+    step done: q=83.34 mAh  V_loaded_end=3.6255  SoC→54.92%  note=q_reached
+    [rest step9] 30 min (PSU/Load both OFF — cell relaxing)
+    rest:   5.0/30 min  V=3.69997
+    rest:  10.1/30 min  V=3.70211
+    rest:  15.1/30 min  V=3.70290
+    rest:  20.1/30 min  V=3.70359
+    rest:  25.1/30 min  V=3.70410
+    rest done: V_eq=3.70442 V  |dV/dt|_last5min=0.095 mV/min
+
+----------------------------------------------------------------
+  GITT step 10  discharge  I_cc=0.833 A  Q_target=83.2 mAh  (SoC 54.92% → ~49.92%)
+[bench] cooldown complete → IDLE
+[bench] DISCHARGING (load INP ON, PSU verified OFF)
+    t=  0.0s  V=3.6517  I=+0.8293  q=   0.0/83.2 mAh  [discharge]
+    t=150.9s  V=3.6154  I=+0.8293  q=  34.8/83.2 mAh  [discharge]
+    t=210.8s  V=3.6093  I=+0.8293  q=  48.6/83.2 mAh  [discharge]
+    t=270.7s  V=3.6037  I=+0.8293  q=  62.4/83.2 mAh  [discharge]
+    t=330.5s  V=3.5984  I=+0.8293  q=  76.1/83.2 mAh  [discharge]
+[bench] LOAD OFF, COOLDOWN 5.0 s
+    step done: q=83.33 mAh  V_loaded_end=3.5959  SoC→49.92%  note=q_reached
+    [rest step10] 30 min (PSU/Load both OFF — cell relaxing)
+    rest:   5.0/30 min  V=3.67195
+    rest:  10.1/30 min  V=3.67397
+    rest:  15.1/30 min  V=3.67508
+    rest:  20.1/30 min  V=3.67566
+    rest:  25.1/30 min  V=3.67595
+    rest done: V_eq=3.67659 V  |dV/dt|_last5min=0.075 mV/min
+
+----------------------------------------------------------------
+  GITT step 11  discharge  I_cc=0.833 A  Q_target=83.2 mAh  (SoC 49.92% → ~44.92%)
+[bench] cooldown complete → IDLE
+[bench] DISCHARGING (load INP ON, PSU verified OFF)
+    t=  0.0s  V=3.6244  I=+0.8293  q=   0.0/83.2 mAh  [discharge]
+    t=150.9s  V=3.5887  I=+0.8293  q=  34.8/83.2 mAh  [discharge]
+    t=210.8s  V=3.5830  I=+0.8293  q=  48.6/83.2 mAh  [discharge]
+    t=270.6s  V=3.5781  I=+0.8293  q=  62.3/83.2 mAh  [discharge]
+    t=330.5s  V=3.5736  I=+0.8293  q=  76.1/83.2 mAh  [discharge]
+[bench] LOAD OFF, COOLDOWN 5.0 s
+    step done: q=83.32 mAh  V_loaded_end=3.5714  SoC→44.92%  note=q_reached
+    [rest step11] 30 min (PSU/Load both OFF — cell relaxing)
+    rest:   5.0/30 min  V=3.64896
+    rest:  10.1/30 min  V=3.65146
+    rest:  15.1/30 min  V=3.65237
+    rest:  20.1/30 min  V=3.65329
+    rest:  25.1/30 min  V=3.65372
+    rest done: V_eq=3.65418 V  |dV/dt|_last5min=0.018 mV/min
+
+----------------------------------------------------------------
+  GITT step 12  discharge  I_cc=0.833 A  Q_target=83.2 mAh  (SoC 44.92% → ~39.92%)
+[bench] cooldown complete → IDLE
+[bench] DISCHARGING (load INP ON, PSU verified OFF)
+    t=  0.0s  V=3.6018  I=+0.8293  q=   0.0/83.2 mAh  [discharge]
+    t=150.9s  V=3.5669  I=+0.8293  q=  34.8/83.2 mAh  [discharge]
+    t=210.8s  V=3.5612  I=+0.8293  q=  48.6/83.2 mAh  [discharge]
+    t=270.6s  V=3.5565  I=+0.8293  q=  62.3/83.2 mAh  [discharge]
+    t=330.5s  V=3.5523  I=+0.8293  q=  76.1/83.2 mAh  [discharge]
+[bench] LOAD OFF, COOLDOWN 5.0 s
+    step done: q=83.33 mAh  V_loaded_end=3.5501  SoC→39.91%  note=q_reached
+    [rest step12] 30 min (PSU/Load both OFF — cell relaxing)
+    rest:   5.0/30 min  V=3.62913
+    rest:  10.1/30 min  V=3.63217
+    rest:  15.1/30 min  V=3.63353
+    rest:  20.1/30 min  V=3.63426
+    rest:  25.1/30 min  V=3.63478
+    rest done: V_eq=3.63531 V  |dV/dt|_last5min=0.101 mV/min
+
+----------------------------------------------------------------
+  GITT step 13  discharge  I_cc=0.833 A  Q_target=83.2 mAh  (SoC 39.91% → ~34.91%)
+[bench] cooldown complete → IDLE
+[bench] DISCHARGING (load INP ON, PSU verified OFF)
+    t=  0.0s  V=3.5827  I=+0.8293  q=   0.0/83.2 mAh  [discharge]
+    t=150.9s  V=3.5472  I=+0.8293  q=  34.8/83.2 mAh  [discharge]
+    t=210.8s  V=3.5414  I=+0.8293  q=  48.6/83.2 mAh  [discharge]
+    t=270.6s  V=3.5365  I=+0.8293  q=  62.3/83.2 mAh  [discharge]
+    t=330.5s  V=3.5322  I=+0.8293  q=  76.1/83.2 mAh  [discharge]
+[bench] LOAD OFF, COOLDOWN 5.0 s
+    step done: q=83.32 mAh  V_loaded_end=3.5299  SoC→34.91%  note=q_reached
+    [rest step13] 30 min (PSU/Load both OFF — cell relaxing)
+    rest:   5.0/30 min  V=3.60848
+    rest:  10.1/30 min  V=3.61134
+    rest:  15.1/30 min  V=3.61305
+    rest:  20.1/30 min  V=3.61377
+    rest:  25.1/30 min  V=3.61446
+    rest done: V_eq=3.61489 V  |dV/dt|_last5min=0.059 mV/min
+
+----------------------------------------------------------------
+  GITT step 14  discharge  I_cc=0.833 A  Q_target=83.2 mAh  (SoC 34.91% → ~29.91%)
+[bench] cooldown complete → IDLE
+[bench] DISCHARGING (load INP ON, PSU verified OFF)
+    t=  0.0s  V=3.5627  I=+0.8293  q=   0.0/83.2 mAh  [discharge]
+    t=150.9s  V=3.5255  I=+0.8293  q=  34.8/83.2 mAh  [discharge]
+    t=210.8s  V=3.5198  I=+0.8292  q=  48.6/83.2 mAh  [discharge]
+    t=270.6s  V=3.5149  I=+0.8292  q=  62.3/83.2 mAh  [discharge]
+    t=330.5s  V=3.5100  I=+0.8292  q=  76.1/83.2 mAh  [discharge]
+[bench] LOAD OFF, COOLDOWN 5.0 s
+    step done: q=83.32 mAh  V_loaded_end=3.5075  SoC→29.90%  note=q_reached
+    [rest step14] 30 min (PSU/Load both OFF — cell relaxing)
+    rest:   5.0/30 min  V=3.58398
+    rest:  10.1/30 min  V=3.58588
+    rest:  15.1/30 min  V=3.58716
+    rest:  20.1/30 min  V=3.58775
+    rest:  25.1/30 min  V=3.58812
+    rest done: V_eq=3.58852 V  |dV/dt|_last5min=0.110 mV/min
+
+----------------------------------------------------------------
+  GITT step 15  discharge  I_cc=0.833 A  Q_target=83.2 mAh  (SoC 29.90% → ~24.90%)
+[bench] cooldown complete → IDLE
+[bench] DISCHARGING (load INP ON, PSU verified OFF)
+    t=  0.0s  V=3.5360  I=+0.8293  q=   0.0/83.2 mAh  [discharge]
+    t=150.9s  V=3.4997  I=+0.8292  q=  34.8/83.2 mAh  [discharge]
+    t=210.8s  V=3.4933  I=+0.8292  q=  48.5/83.2 mAh  [discharge]
+    t=270.6s  V=3.4871  I=+0.8292  q=  62.3/83.2 mAh  [discharge]
+    t=330.5s  V=3.4806  I=+0.8292  q=  76.1/83.2 mAh  [discharge]
+[bench] LOAD OFF, COOLDOWN 5.0 s
+    step done: q=83.32 mAh  V_loaded_end=3.4772  SoC→24.90%  note=q_reached
+    [rest step15] 30 min (PSU/Load both OFF — cell relaxing)
+    rest:   5.0/30 min  V=3.55230
+    rest:  10.1/30 min  V=3.55426
+    rest:  15.1/30 min  V=3.55524
+    rest:  20.1/30 min  V=3.55583
+    rest:  25.1/30 min  V=3.55623
+    rest done: V_eq=3.55638 V  |dV/dt|_last5min=0.020 mV/min
+
+----------------------------------------------------------------
+  GITT step 16  discharge  I_cc=0.833 A  Q_target=83.2 mAh  (SoC 24.90% → ~19.90%)
+[bench] cooldown complete → IDLE
+[bench] DISCHARGING (load INP ON, PSU verified OFF)
+    t=  0.0s  V=3.5035  I=+0.8292  q=   0.0/83.2 mAh  [discharge]
+    t=151.0s  V=3.4634  I=+0.8292  q=  34.8/83.2 mAh  [discharge]
+    t=210.8s  V=3.4544  I=+0.8291  q=  48.6/83.2 mAh  [discharge]
+    t=270.7s  V=3.4463  I=+0.8292  q=  62.3/83.2 mAh  [discharge]
+    t=330.5s  V=3.4396  I=+0.8292  q=  76.1/83.2 mAh  [discharge]
+[bench] LOAD OFF, COOLDOWN 5.0 s
+    step done: q=83.32 mAh  V_loaded_end=3.4365  SoC→19.89%  note=q_reached
+    [rest step16] 30 min (PSU/Load both OFF — cell relaxing)
+    rest:   5.0/30 min  V=3.50842
+    rest:  10.1/30 min  V=3.50986
+    rest:  15.1/30 min  V=3.51073
+    rest:  20.1/30 min  V=3.51129
+    rest:  25.1/30 min  V=3.51168
+    rest done: V_eq=3.51186 V  |dV/dt|_last5min=0.077 mV/min
+
+----------------------------------------------------------------
+  GITT step 17  discharge  I_cc=0.833 A  Q_target=83.2 mAh  (SoC 19.89% → ~14.89%)
+[bench] cooldown complete → IDLE
+[bench] DISCHARGING (load INP ON, PSU verified OFF)
+    t=  0.0s  V=3.4586  I=+0.8292  q=   0.0/83.2 mAh  [discharge]
+    t=150.9s  V=3.4271  I=+0.8292  q=  34.8/83.2 mAh  [discharge]
+    t=210.8s  V=3.4224  I=+0.8292  q=  48.5/83.2 mAh  [discharge]
+    t=270.6s  V=3.4178  I=+0.8292  q=  62.3/83.2 mAh  [discharge]
+    t=330.5s  V=3.4133  I=+0.8292  q=  76.1/83.2 mAh  [discharge]
+[bench] LOAD OFF, COOLDOWN 5.0 s
+    step done: q=83.32 mAh  V_loaded_end=3.4108  SoC→14.89%  note=q_reached
+    [rest step17] 30 min (PSU/Load both OFF — cell relaxing)
+    rest:   5.0/30 min  V=3.48815
+    rest:  10.1/30 min  V=3.48981
+    rest:  15.1/30 min  V=3.49070
+    rest:  20.1/30 min  V=3.49140
+    rest:  25.1/30 min  V=3.49179
+    rest done: V_eq=3.49198 V  |dV/dt|_last5min=0.053 mV/min
+
+----------------------------------------------------------------
+  GITT step 18  discharge  I_cc=0.833 A  Q_target=83.2 mAh  (SoC 14.89% → ~9.89%)
+[bench] cooldown complete → IDLE
+[bench] DISCHARGING (load INP ON, PSU verified OFF)
+    t=  0.0s  V=3.4380  I=+0.8292  q=   0.0/83.2 mAh  [discharge]
+    t=151.0s  V=3.4011  I=+0.8292  q=  34.8/83.2 mAh  [discharge]
+    t=210.8s  V=3.3930  I=+0.8292  q=  48.6/83.2 mAh  [discharge]
+    t=270.7s  V=3.3830  I=+0.8292  q=  62.3/83.2 mAh  [discharge]
+    t=330.5s  V=3.3706  I=+0.8292  q=  76.1/83.2 mAh  [discharge]
+[bench] LOAD OFF, COOLDOWN 5.0 s
+    step done: q=83.32 mAh  V_loaded_end=3.3628  SoC→9.89%  note=q_reached
+    [rest step18] 30 min (PSU/Load both OFF — cell relaxing)
+    rest:   5.0/30 min  V=3.45835
+    rest:  10.1/30 min  V=3.46246
+    rest:  15.1/30 min  V=3.46372
+    rest:  20.1/30 min  V=3.46490
+    rest:  25.1/30 min  V=3.46553
+    rest done: V_eq=3.46599 V  |dV/dt|_last5min=0.085 mV/min
+
+----------------------------------------------------------------
+  GITT step 19  discharge  I_cc=0.833 A  Q_target=83.2 mAh  (SoC 9.89% → ~4.89%)
+[bench] cooldown complete → IDLE
+[bench] DISCHARGING (load INP ON, PSU verified OFF)
+    t=  0.0s  V=3.4121  I=+0.8292  q=   0.0/83.2 mAh  [discharge]
+    t=150.9s  V=3.3166  I=+0.8292  q=  34.8/83.2 mAh  [discharge]
+    t=210.8s  V=3.2737  I=+0.8291  q=  48.5/83.2 mAh  [discharge]
+    t=270.6s  V=3.2207  I=+0.8291  q=  62.3/83.2 mAh  [discharge]
+    t=330.5s  V=3.1532  I=+0.8291  q=  76.1/83.2 mAh  [discharge]
+[bench] LOAD OFF, COOLDOWN 5.0 s
+    step done: q=83.31 mAh  V_loaded_end=3.1096  SoC→4.88%  note=q_reached
+    [rest step19] 30 min (PSU/Load both OFF — cell relaxing)
+    rest:   5.0/30 min  V=3.20081
+    rest:  10.1/30 min  V=3.20721
+    rest:  15.1/30 min  V=3.21163
+    rest:  20.1/30 min  V=3.21509
+    rest:  25.1/30 min  V=3.21826
+    rest done: V_eq=3.22064 V  |dV/dt|_last5min=0.558 mV/min
+
+----------------------------------------------------------------
+  GITT step 20  discharge  I_cc=0.833 A  Q_target=83.2 mAh  (SoC 4.88% → ~-0.12%)
+[bench] cooldown complete → IDLE
+[bench] DISCHARGING (load INP ON, PSU verified OFF)
+    t=  0.0s  V=3.1639  I=+0.8291  q=   0.0/83.2 mAh  [discharge]
+[bench] LOAD OFF, COOLDOWN 5.0 s
+
+
+[gitt] !!! SAFETY ABORT: ABS V=2.468 < v_abs_low=2.500 (chemistry limit)
+[bench] !!! EMERGENCY STOP !!!

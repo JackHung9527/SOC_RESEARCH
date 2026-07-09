@@ -16,6 +16,8 @@
  */
 
 #include "global_includes.h"
+#include <stdlib.h>    /* strtof（SOC CLI） */
+#include <strings.h>   /* strncasecmp（SOC CLI） */
 /* battery_monitor.h / ina226.h / soc_soh_calc.h are pulled in via the
  * USER_DRIVERS block in global_includes.h — no need to re-include here. */
 
@@ -59,6 +61,44 @@ static uint32_t s_cyc_ekf;
 static uint32_t s_cyc_z;
 #endif
 
+#if SOC_COULOMB_ENABLE && SOC_COULOMB_ANCHOR_EN
+/* 充飽自動重錨：V > 門檻且 |I| 近零連續 HOLD_S 秒 → cc 錨 100%。
+ * 一次重錨後解除武裝，看到放電電流 > REARM 門檻才再武裝。 */
+static void soc_coulomb_anchor_poll(float i_ma, float v_mv)
+{
+	static bool     s_armed  = true;
+	static uint32_t s_hold_s = 0U;
+
+	if (!s_armed)
+	{
+		if (i_ma > SOC_COULOMB_ANCHOR_REARM_MA)
+		{
+			s_armed = true;
+		}
+		return;
+	}
+
+	if ((v_mv > SOC_COULOMB_ANCHOR_V_MV) &&
+	    (i_ma < SOC_COULOMB_ANCHOR_I_MA) &&
+	    (i_ma > -SOC_COULOMB_ANCHOR_I_MA))
+	{
+		s_hold_s++;
+		if (s_hold_s >= SOC_COULOMB_ANCHOR_HOLD_S)
+		{
+			soc_coulomb_set_soc(10000);
+			s_armed  = false;
+			s_hold_s = 0U;
+			uart_debug_printf("[soc] cc anchored to 100.00%% "
+			                  "(full-charge detect)\r\n");
+		}
+	}
+	else
+	{
+		s_hold_s = 0U;
+	}
+}
+#endif /* SOC_COULOMB_ENABLE && SOC_COULOMB_ANCHOR_EN */
+
 static void soc_estimators_feed_1s(float i_ma, float v_mv)
 {
 	perf_cyc_t t;
@@ -71,6 +111,11 @@ static void soc_estimators_feed_1s(float i_ma, float v_mv)
 		soc_ekf_seed_from_voltage(v_mv);
 		s_ekf_seeded = true;
 	}
+#endif
+
+#if SOC_COULOMB_ENABLE && SOC_COULOMB_ANCHOR_EN
+	/* 在 perf 計時之外輪詢，不污染 4.4.3 的 update cycle 數 */
+	soc_coulomb_anchor_poll(i_ma, v_mv);
 #endif
 
 #if SOC_COULOMB_ENABLE
@@ -121,6 +166,88 @@ static void soc_estimators_print(uint32_t seconds)
 	uart_debug_printf("\r\n");
 }
 
+/* ---- SOC UART CLI（鏈式 dispatcher：SOC 命令在此處理，其餘轉發校正 CLI）
+ *   SOC_ANCHOR          cc 錨定 100.00%（充飽後手動重錨）
+ *   SOC_SET <pct>       cc 錨定至 <pct>%（0..100，測試用）
+ *   SOC_EKF_SET <pct>   EKF 強制設 SOC（4.4.2 強健性測試用） */
+static bool soc_cli_parse_pct(const char *s, uint16_t len, float *out)
+{
+	char buf[12];
+	uint16_t n = 0U;
+
+	while ((n < len) && (s[n] == ' '))
+	{
+		s++;
+		len--;
+	}
+	if ((len == 0U) || (len >= sizeof(buf)))
+	{
+		return false;
+	}
+	for (n = 0U; n < len; n++)
+	{
+		buf[n] = s[n];
+	}
+	buf[len] = '\0';
+
+	float v = strtof(buf, NULL);
+	if ((v < 0.0f) || (v > 100.0f))
+	{
+		return false;
+	}
+	*out = v;
+	return true;
+}
+
+static void soc_cli_dispatch(const char *line, uint16_t len)
+{
+	while ((len > 0U) && ((line[len - 1U] == '\r') || (line[len - 1U] == '\n')))
+	{
+		len--;
+	}
+
+	float pct;
+
+#if SOC_COULOMB_ENABLE
+	if ((len == 10U) && (strncasecmp(line, "SOC_ANCHOR", 10U) == 0))
+	{
+		soc_coulomb_set_soc(10000);
+		uart_debug_printf("[soc] cc anchored to 100.00%% (cli)\r\n");
+		return;
+	}
+	if ((len > 8U) && (strncasecmp(line, "SOC_SET ", 8U) == 0))
+	{
+		if (soc_cli_parse_pct(&line[8], (uint16_t)(len - 8U), &pct))
+		{
+			soc_coulomb_set_soc((int32_t)(pct * 100.0f));
+			uart_debug_printf("[soc] cc set to %.2f%% (cli)\r\n", (double)pct);
+		}
+		else
+		{
+			uart_debug_printf("ERR SOC_SET: pct 需在 0..100\r\n");
+		}
+		return;
+	}
+#endif
+#if SOC_EKF_ENABLE
+	if ((len > 12U) && (strncasecmp(line, "SOC_EKF_SET ", 12U) == 0))
+	{
+		if (soc_cli_parse_pct(&line[12], (uint16_t)(len - 12U), &pct))
+		{
+			soc_ekf_set_soc(pct);
+			uart_debug_printf("[soc] ekf set to %.2f%% (cli)\r\n", (double)pct);
+		}
+		else
+		{
+			uart_debug_printf("ERR SOC_EKF_SET: pct 需在 0..100\r\n");
+		}
+		return;
+	}
+#endif
+	(void)pct;
+	ina_cal_dispatch_line(line, len);   /* 非 SOC 命令 → 校正 CLI */
+}
+
 #endif /* any SOC method enabled */
 
 
@@ -137,6 +264,10 @@ void once(void)
 	i2c_bus_init();
 	ina_cal_init();
 	ina_cal_uart_attach();
+#if SOC_COULOMB_ENABLE || SOC_EKF_ENABLE || SOC_ZDYN_ENABLE
+	/* SOC CLI 覆蓋 rx callback；非 SOC 命令由 soc_cli_dispatch 轉發回校正 CLI */
+	uart_debug_set_rx_line_cb(soc_cli_dispatch);
+#endif
 #if SOC_COULOMB_ENABLE
 	soc_coulomb_init();
 #endif

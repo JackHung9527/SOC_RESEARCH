@@ -218,6 +218,81 @@ def precharge_to_full(
     return v_start or v_last, v_last, note
 
 
+# ───────────────────────── final CC charge (no GITT) ──────────────
+
+def final_cc_charge_to_v(
+    *, psu, load, bench, battery, guard, c_rate: float, v_target: float,
+    trace: CsvLogger, run_t0: float,
+) -> tuple[float, float, str]:
+    """Plain CC charge at c_rate until terminal V ≥ v_target (held 3 s).
+
+    Used instead of the charge-direction GITT sweep when the caller only
+    needs to park the cell at a storage voltage (e.g. 3.9 V) after the
+    discharge sweep. Returns (v_start, v_end, note).
+    """
+    c1_A = battery.q_rated_mAh / 1000.0
+    i_cc = c_rate * c1_A
+    v_cv = battery.v_charge_cutoff
+
+    _print(
+        f"  [final-charge] CC  I_cc={i_cc:.3f} A  → stop at "
+        f"V≥{v_target:.3f} V (held 3 s)"
+    )
+
+    psu.select(1)
+    psu.set_voltage(v_cv)
+    psu.set_current(i_cc)
+    time.sleep(0.3)
+    tol = max(0.005, 0.05 * i_cc)
+    rb = psu.s.query_float("CURR?")
+    if abs(rb - i_cc) > tol:
+        psu.set_current(i_cc)
+        time.sleep(0.3)
+        rb = psu.s.query_float("CURR?")
+        if abs(rb - i_cc) > tol:
+            raise RuntimeError(
+                f"PSU CURR refuses to set: target {i_cc:.4f} A, "
+                f"readback {rb:.4f} A"
+            )
+    bench.start_charge(ch=1)
+
+    t0 = time.monotonic()
+    v_start: Optional[float] = None
+    v_last = 0.0
+    t_in_band: Optional[float] = None
+    note = "v_target"
+    try:
+        while True:
+            now = time.monotonic()
+            t = now - t0
+            v = psu.measure_voltage()
+            i = psu.measure_current()
+            if v_start is None:
+                v_start = v
+            v_last = v
+            guard.check(v, i)
+            trace.log(now - run_t0, "final_charge", v, i, soc_cc=0.0)
+            if int(t) % 30 == 0:
+                _print(f"    t={t:6.1f}s  V={v:.4f}  I={i:+.4f}  [final_charge]")
+            if v >= v_target:
+                if t_in_band is None:
+                    t_in_band = now
+                if now - t_in_band >= 3.0:
+                    _print(f"    → FINAL-CHARGE TERM (V={v:.4f}≥{v_target:.3f}, held 3 s)")
+                    break
+            else:
+                t_in_band = None
+            if t >= 6 * 3600:
+                note = "timeout"
+                _print("    !!! final charge timeout (>6 h) — aborting")
+                break
+            time.sleep(ACTIVE_SAMPLE_DT_S)
+    finally:
+        bench.stop_charge()
+
+    return v_start or v_last, v_last, note
+
+
 # ───────────────────────── rest + V_eq capture ────────────────────
 
 def run_rest_capture(
@@ -508,6 +583,7 @@ def write_ocv_table(path: Path, rows: list[dict]) -> None:
 
 def run_gitt(
     step_pct: float, rest_min: float, c_rate: float, dry_run: bool = False,
+    final_charge_v: Optional[float] = None,
 ) -> int:
     battery = require_battery()
     print_summary(battery)
@@ -524,7 +600,13 @@ def run_gitt(
     rest_h = rest_min / 60.0
     one_phase_h = n_steps_per_dir * (step_h + rest_h)
     precharge_h_ub = 1.0 / c_rate + 0.5
-    total_h = precharge_h_ub + 2 * one_phase_h
+    if final_charge_v is not None:
+        # Plain CC recharge from ~0% to roughly the target voltage's SoC;
+        # 0.7/c_rate h is a generous upper bound for a mid-band target.
+        final_charge_h = 0.7 / c_rate
+        total_h = precharge_h_ub + one_phase_h + final_charge_h
+    else:
+        total_h = precharge_h_ub + 2 * one_phase_h
 
     now = datetime.now()
     eta = now + timedelta(hours=total_h)
@@ -544,7 +626,11 @@ def run_gitt(
     _print("")
     _print(f"  PHASE 1 precharge (upper bound) ≈ {precharge_h_ub:.1f} h")
     _print(f"  PHASE 2 discharge GITT          ≈ {one_phase_h:.1f} h")
-    _print(f"  PHASE 3 charge    GITT          ≈ {one_phase_h:.1f} h")
+    if final_charge_v is not None:
+        _print(f"  PHASE 3 final CC charge to {final_charge_v:.2f} V "
+               f"≈ {final_charge_h:.1f} h (no charge-direction GITT)")
+    else:
+        _print(f"  PHASE 3 charge    GITT          ≈ {one_phase_h:.1f} h")
     _print(f"  TOTAL (upper bound)             ≈ {total_h:.1f} h")
     _print(f"  start: {now.strftime('%Y-%m-%d %H:%M')}  "
            f"→ ETA: {eta.strftime('%Y-%m-%d %H:%M %a')}")
@@ -650,31 +736,43 @@ def run_gitt(
                     break
 
             # ── PHASE 3: charge GITT (~0% → ~100%) ────────────────
-            _print("\n" + "=" * 64)
-            _print(f" PHASE 3/3 — charge GITT  "
-                   f"({n_steps_per_dir} × {step_pct:.1f}%)")
-            _print("=" * 64)
-            soc = max(0.0, soc)
-            # Extra slack in case v_limited fires before nominal full SoC.
-            for k in range(n_steps_per_dir + 4):
-                if soc >= 0.999:
-                    break
-                idx = len(disch_results) + k
-                res = run_gitt_step(
-                    direction="charge",
+            # or, with --final-charge-v: plain CC recharge to a storage
+            # voltage — no charge-direction sweep, OCV table becomes
+            # discharge-direction only.
+            if final_charge_v is not None:
+                _print("\n" + "=" * 64)
+                _print(f" PHASE 3/3 — final CC charge to "
+                       f"{final_charge_v:.3f} V ({c_rate:.2f}C)")
+                _print("=" * 64)
+                fv0, fv1, fc_note = final_cc_charge_to_v(
                     psu=psu, load=load, bench=bench, battery=battery,
-                    guard=guard,
-                    c_rate=c_rate, q_target_mAh=q_step_mAh,
-                    soc_before=soc, rest_s=rest_s, step_idx=idx,
+                    guard=guard, c_rate=c_rate, v_target=final_charge_v,
                     trace=trace, run_t0=run_t0,
                 )
-                chg_results.append(res)
-                write_summary_row(summary_w, summary_fp, res)
-                soc = res.soc_after
-                if res.note == "v_limited":
-                    _print(f"  [gitt] V_cv reached after step {idx} — "
-                           f"ending charge phase at SoC={soc*100:.2f}%")
-                    break
+                _print(f"[gitt] final charge done: V {fv0:.4f} → {fv1:.4f} "
+                       f"({fc_note})")
+            else:
+                soc = max(0.0, soc)
+                # Extra slack in case v_limited fires before nominal full SoC.
+                for k in range(n_steps_per_dir + 4):
+                    if soc >= 0.999:
+                        break
+                    idx = len(disch_results) + k
+                    res = run_gitt_step(
+                        direction="charge",
+                        psu=psu, load=load, bench=bench, battery=battery,
+                        guard=guard,
+                        c_rate=c_rate, q_target_mAh=q_step_mAh,
+                        soc_before=soc, rest_s=rest_s, step_idx=idx,
+                        trace=trace, run_t0=run_t0,
+                    )
+                    chg_results.append(res)
+                    write_summary_row(summary_w, summary_fp, res)
+                    soc = res.soc_after
+                    if res.note == "v_limited":
+                        _print(f"  [gitt] V_cv reached after step {idx} — "
+                               f"ending charge phase at SoC={soc*100:.2f}%")
+                        break
 
             # ── Build pseudo-OCV table ────────────────────────────
             _print("\n" + "=" * 64)
@@ -692,8 +790,11 @@ def run_gitt(
                        f"V_pseudo={r['v_pseudo_ocv']:.5f}")
 
             _print("\n" + "=" * 64)
-            _print(" GITT complete — cell at full charge, "
-                   "ready for next round")
+            if final_charge_v is not None:
+                _print(f" GITT complete — cell parked at ~{final_charge_v:.2f} V")
+            else:
+                _print(" GITT complete — cell at full charge, "
+                       "ready for next round")
             _print("=" * 64)
 
         except KeyboardInterrupt:
@@ -736,12 +837,18 @@ def main() -> int:
     ap.add_argument("--c-rate", type=float, default=DEFAULT_C_RATE,
                     help=f"CC C-rate for both directions "
                          f"(default {DEFAULT_C_RATE})")
+    ap.add_argument("--final-charge-v", type=float, default=None,
+                    help="skip the charge-direction GITT sweep; instead "
+                         "CC-charge at --c-rate until terminal V reaches "
+                         "this value (e.g. 3.9). OCV table becomes "
+                         "discharge-direction only")
     args = ap.parse_args()
     return run_gitt(
         step_pct=args.step_pct,
         rest_min=args.rest_min,
         c_rate=args.c_rate,
         dry_run=args.dry_run,
+        final_charge_v=args.final_charge_v,
     )
 
 

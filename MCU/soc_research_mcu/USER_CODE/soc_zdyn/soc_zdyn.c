@@ -113,7 +113,12 @@ void soc_zdyn_update_1s(float i_ma, float v_mv)
         float di = i_ma - s_prev_i_ma;
         float adi = fabsf(di);
 
-        if ((adi >= SOC_ZDYN_DI_MIN_MA) && (adi <= SOC_ZDYN_DI_MAX_MA))
+        /* 放電向過濾：Z(SOC) 曲線（表 4-3）由放電擾動辨識，僅雙樣本皆在
+         * 放電負載下的事件在定義域內；充電階躍／起載邊緣一律剔除（4.4.2-2） */
+        bool in_domain = (i_ma > SOC_ZDYN_I_FLOOR_MA) &&
+                         (s_prev_i_ma > SOC_ZDYN_I_FLOOR_MA);
+
+        if (in_domain && (adi >= SOC_ZDYN_DI_MIN_MA) && (adi <= SOC_ZDYN_DI_MAX_MA))
         {
             /* mV/mA = Ω → ×1000 換 mΩ */
             float z = fabsf((v_mv - s_prev_v_mv) / di) * 1000.0f;
