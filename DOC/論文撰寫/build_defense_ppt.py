@@ -199,8 +199,8 @@ r = p.add_run()
 r.text = "A Comparative Study and Embedded Implementation of SOC Estimation Methods for Li-ion Batteries"
 _set(r, 15, False, LBLUE, font=FONT_EN, italic=True)
 tf = add_text(s, Inches(0.8), Inches(5.45), Inches(11.7), Inches(1.5), anchor=MSO_ANCHOR.TOP)
-for label, val in [("研究生　：", "[ 研究生姓名 ]"),
-                   ("指導教授：", "[ 指導教授 ] 博士"),
+for label, val in [("研究生　：", "洪大甲"),
+                   ("指導教授：", "鄭維凱"),
                    ("中華民國　115 年", "")]:
     p = tf.add_paragraph(); p.alignment = PP_ALIGN.CENTER; p.space_after = Pt(6)
     r = p.add_run(); r.text = label; _set(r, 18, True, WHITE)
@@ -575,14 +575,15 @@ tf = add_text(s, Inches(5.2), Inches(1.4), Inches(7.6), Inches(3.0))
 para(tf, "狀態空間（一階 RC、狀態二維）", 16, True, NAVY, first=True, space_after=3)
 para(tf, "x = [SOC, V₁]ᵀ，輸入 I，輸出 Vt", 14, level=1, font=FONT_EN, space_after=3)
 para(tf, "Vt = Voc(SOC) − I·R₀ − V₁，觀測非線性源自 Voc(SOC)", 14, level=1, font=FONT_EN, space_after=3)
-para(tf, "OCV–SOC 由 GITT 標準協定建 pseudo-OCV 表，1% 細網格平滑使雅可比連續", 14, level=1, space_after=8)
+para(tf, "OCV 表由 GITT 實測建立（2026-07-05；20 點 → 平滑成 21 點單調表）；R₀/R₁/τ₁ 由脈衝鬆弛最小平方辨識", 14, level=1, space_after=8)
 para(tf, "嵌入式關鍵：狀態二維、觀測一維 → 增益只需一次純量除法、免矩陣求逆", 15, True, GREEN, space_after=0)
 sidebar_note(s, [
-    "兼具庫倫的良好動態 + OCV 的絕對校正",
-    "MCU 無硬體 FPU → 軟浮點模擬，單次更新最耗時、Flash/RAM 最大",
-    "4.2.5 精度為 [待測]（依賴 GITT 表 + PC 原型 + STM32 移植）",
-], Inches(5.2), Inches(4.4), Inches(7.6), Inches(2.4), title="代價與現況",
-   fill=RGBColor(0xFD,0xF3,0xE0), tcolor=GOLD)
+    "PC 重放 RMSE 0.60%；板端整輪四倍率 RMSE 0.22–0.90%（全 <1%）→ 三法最佳",
+    "+25% 錯誤初值 → 單步量測更新即拉回（自我修正，庫倫做不到）",
+    "MCU 無 FPU → 軟浮點；單次更新 15,187 cycles（237 µs）、Flash +2.3 KB 最大",
+    "首輪隨倍率正偏 → 追出量測域錯位（見次頁）→ R₀ 改電池端域後全倍率 <1%",
+], Inches(5.2), Inches(4.25), Inches(7.6), Inches(2.55), title="實測結果（實測）",
+   fill=RGBColor(0xE6,0xF4,0xEA), tcolor=GREEN)
 
 # =====================================================================
 # 15. 動態阻抗 原理
@@ -604,57 +605,51 @@ sidebar_note(s, [
 ], Inches(4.5), Inches(4.4), Inches(8.3), Inches(2.4), title="工程優勢與特性")
 
 # =====================================================================
-# 16. 動態阻抗 實測
+# 16. 動態阻抗 實測 + 量測域發現（核心發現）
 # =====================================================================
-s = new("實測：動態阻抗", "六、動態阻抗實測結果（fresh-cell rounds 1–3）", "二次擬合 + 以擬合反推 SOC 之逐點精度")
-add_image_fit(s, os.path.join(FIG, "fig4-4.png"), Inches(0.5), Inches(1.4),
-              Inches(5.6), Inches(3.0))
-caption(s, "圖 4-4　|ΔV/ΔI|–SOC 實測散點與二次擬合（四種放電倍率）",
-        Inches(0.5), Inches(4.5), Inches(5.6))
-data = [
-    ["倍率", "a (mΩ)", "b (mΩ)", "c (mΩ)", "最低點", "殘差", "反推RMSE"],
-    ["0.5C", "24.5", "−27.9", "66.6", "56.9%", "3.54", "9.7%"],
-    ["1.0C", "14.9", "−15.4", "61.8", "51.7%", "0.62", "6.6%"],
-    ["1.5C", "15.6", "−14.6", "60.3", "46.9%", "0.59", "6.6%"],
-    ["2.0C", "16.2", "−14.0", "59.0", "43.3%", "0.52", "6.3%"],
-    ["合併", "20.2", "−21.6", "63.6", "53.4%", "2.90", "—"],
-]
-add_table(s, data, Inches(6.3), Inches(1.55), Inches(6.5), Inches(2.6),
-          col_w=[1.0, 1.0, 1.0, 1.0, 1.1, 0.9, 1.2], fs=12.5, align_first_left=False)
-caption(s, "表 4-3　二次擬合係數與反推精度（mΩ；SOC 以分數代入）",
-        Inches(6.3), Inches(4.25), Inches(6.5))
+s = new("動態阻抗與量測域發現", "六、動態阻抗實測與量測域發現",
+        "離線可擬合拋物線，但線上單獨反推不可行 — 量測域錯位 + 反問題病態")
+add_image_fit(s, os.path.join(FIG, "fig4-4.png"), Inches(0.55), Inches(1.35),
+              Inches(5.9), Inches(2.95))
+caption(s, "圖 4-4　|ΔV/ΔI|–SOC 離線擬合（最低點≈53%，離線 oracle RMSE 6–10%）",
+        Inches(0.55), Inches(4.3), Inches(5.9))
+add_image_fit(s, os.path.join(FIG, "fig4-5.png"), Inches(6.9), Inches(1.35),
+              Inches(5.9), Inches(2.95))
+caption(s, "圖 4-5　量測域對照：台架負載端 vs 板端電池端子（常數項差約 24 mΩ）",
+        Inches(6.9), Inches(4.3), Inches(5.9))
 sidebar_note(s, [
-    "最低點約 SOC 53%，與理論「最小值在 50% 附近」一致",
-    "高倍率殘差低至 ~0.5 mΩ；低倍率 SNR 差、殘差 ~3.5 mΩ",
-    "反推 RMSE 6–10%；SOC 中段(40–60%)誤差大 → 阻抗平緩 → 反推病態",
-    "→ 正當化「動態阻抗離散校正 + 庫倫內插」混合策略",
-], Inches(0.55), Inches(4.85), Inches(12.25), Inches(2.0), title="關鍵觀察")
+    "量測域錯位：板端 Z 中位 35 mΩ vs 台架 60 mΩ（差 24 mΩ 線材電阻）→ 台架表移植板端整組失效（RMSE≈28%）",
+    "拋物線形狀由電芯決定（不變）、常數項由量測鏈決定（平移 24 mΩ）→ 對照表須與部署端「同域」建立",
+    "同域重建後線上仍 23–31%：反問題病態 — 曲線跨度僅 ~6 mΩ、噪聲 σ≈2 mΩ（訊號僅噪聲 3 倍）→ 分枝近隨機",
+    "★ 結論：平坦曲線電芯線上單獨反推不可行；僅宜低 SOC 粗校正 + 老化指標 → 正是「評估環境失真」的實測實例",
+], Inches(0.55), Inches(4.78), Inches(12.25), Inches(2.12), title="核心發現",
+   fill=RGBColor(0xFD,0xF3,0xE0), tcolor=GOLD)
 
 # =====================================================================
 # 17. 三方法比較
 # =====================================================================
-s = new("方法比較", "六、三方法公平比較框架", "精度 × 強健性 × 嵌入式資源（同電池・同協定・同 MCU）")
+s = new("方法比較", "六、三方法公平比較（全實測）", "精度 × 強健性 × 嵌入式資源（同電池・同協定・同 MCU・同量測路徑）")
 data = [
-    ["方法", "精度 RMSE", "強健性（初值錯誤）", "Flash/RAM", "每次更新運算", "浮點"],
-    ["庫倫計數", "[待測]", "不收斂（無修正）", "資源下界", "一乘一加", "否"],
-    ["EKF", "[待測]", "可自初值錯誤收斂", "最大（另需 OCV 表)", "最高（軟浮點）", "是"],
-    ["動態阻抗", "6–10%（實測）", "首個擾動即重估", "只存幾個係數", "差分+二次式", "是"],
+    ["方法", "精度 RMSE", "強健性（初值）", "Flash / RAM", "每次更新 cycles", "浮點"],
+    ["庫倫計數", "1.7–2.0%", "不收斂（充飽重錨）", "+1.9 KB / 24 B", "305（4.8 µs）", "否"],
+    ["EKF", "0.22–0.90%", "單步拉回", "+2.3 KB / 40 B", "15,187（237 µs）", "是"],
+    ["動態阻抗", "23–31%（線上）", "首事件 ≤60 s 重估", "+1.5 KB / 48 B", "442 / 6,525", "是"],
 ]
-add_table(s, data, Inches(0.55), Inches(1.55), Inches(12.25), Inches(2.6),
-          col_w=[1.5, 1.8, 2.6, 2.3, 2.3, 0.9], fs=13.5)
-caption(s, "表 4-4 / 4-6　精度與嵌入式 footprint 比較（動態阻抗為實測，餘 [待測]）",
-        Inches(0.55), Inches(4.3), Inches(12.25))
+add_table(s, data, Inches(0.55), Inches(1.55), Inches(12.25), Inches(2.35),
+          col_w=[1.5, 1.9, 2.5, 2.1, 2.4, 0.9], fs=13.5)
+caption(s, "表 4-4／4-6　三法同硬體實測（庫倫負偏源自電流量測鏈刻度；動態阻抗離線 oracle 上界 6–10%；Round 40–41）",
+        Inches(0.55), Inches(4.05), Inches(12.25))
 sidebar_note(s, [
-    "庫倫計數最省資源，但無自我修正能力",
-    "EKF 精度/強健性最佳，但 Flash/RAM/運算代價最高",
-    "動態阻抗居中，且實驗成本最低（複用擾動）",
-], Inches(0.55), Inches(4.75), Inches(6.0), Inches(2.0), title="精度─資源權衡")
+    "① 感測精度：庫倫負偏 ← 兩電流量測鏈刻度差（約 +1.2%）",
+    "② 域一致性：EKF 正偏 / 動態失效 ← 辨識域≠部署域（可消 → 同域後 EKF <1%）",
+    "③ 反問題條件數：動態同域仍病態 ← 電芯曲線平坦度（不可消）",
+], Inches(0.55), Inches(4.5), Inches(6.35), Inches(2.4), title="誤差三層次（皆非演算法設計錯誤）")
 sidebar_note(s, [
-    "在同一硬體實測 Flash/RAM/CPU cycles，",
-    "量化「商用 IC 為何多捨 EKF」之工程權衡",
-    "★ 填補文獻少見之缺口（核心貢獻）",
-], Inches(6.85), Inches(4.75), Inches(5.95), Inches(2.0), title="本研究的填補",
-   fill=RGBColor(0xFD,0xF3,0xE0), tcolor=GOLD)
+    "EKF cycles ≈ 庫倫 50 倍，但折算 237 µs = 每秒預算的 0.024%",
+    "→「EKF 太重」在 Cortex-M0+ 上不成立，分水嶺在更低階 MCU",
+    "噪聲下：庫倫/EKF 皆穩（庫倫略優）、動態阻抗抖動 ≈53%（分枝翻轉）",
+], Inches(7.1), Inches(4.5), Inches(5.7), Inches(2.4), title="資源・即時性・強健性",
+   fill=RGBColor(0xE6,0xF4,0xEA), tcolor=GREEN)
 
 # =====================================================================
 # 18. 系統整合 + 長期再現性
@@ -665,7 +660,9 @@ para(tf, "三法並行整合策略", 16, True, NAVY, first=True, space_after=4)
 para(tf, "共用量測前端（同一筆量測，杜絕不公平）", 13, level=1, space_after=2)
 para(tf, "分離估測核心（各自獨立狀態、可開關）", 13, level=1, space_after=2)
 para(tf, "統一輸出 + 交叉校正掛勾", 13, level=1, space_after=2)
-para(tf, "邊際成本可加性 → 並行資源 ≈ 各 footprint 之和", 13, level=1, color=GREEN, space_after=0)
+para(tf, "邊際成本可加性 → 並行資源 ≈ 各 footprint 之和", 13, level=1, color=GREEN, space_after=2)
+para(tf, "五變體實測：並行 +4.9 KB Flash、+112 B RAM（RAM 嚴格可加）", 13, level=1, color=GREEN, space_after=2)
+para(tf, "即時性：三法並行峰值 344 µs，佔每秒預算 0.034%（餘裕 >3 數量級）", 13, level=1, space_after=0)
 data = [
     ["倍率", "平均(mAh)", "標準差", "CV"],
     ["0.5C", "1665.7", "8.64", "0.519%"],
@@ -683,16 +680,17 @@ data2 = [
     ["11", "05-22", "99.30%", "1653.4"],
     ["23", "06-02", "98.27%", "1636.3"],
     ["34", "06-14", "97.45%", "1622.5"],
-    ["38", "06-19", "97.03%", "1615.5"],
+    ["40", "07-07", "96.07%", "1599.6"],
+    ["41", "07-08", "96.29%", "1603.2"],
 ]
 add_table(s, data2, Inches(6.55), Inches(1.5), Inches(6.25), Inches(2.55),
           col_w=[1.0, 1.3, 1.7, 1.5], fs=12.5, align_first_left=False)
-caption(s, "表 5-3　0.5C 容量保持率長期趨勢（rounds 1–38）", Inches(6.55), Inches(4.1), Inches(6.25))
+caption(s, "表 5-3　0.5C 容量保持率長期趨勢（rounds 1–41）", Inches(6.55), Inches(4.1), Inches(6.25))
 sidebar_note(s, [
     "三輪變異 CV < 0.52%（噪聲下界）",
-    "38 輪累計衰退約 3.7%（真實老化）",
-    "老化 ≈ 7× 噪聲 → 可乾淨分離",
-    "→ 支撐「逐 cycle 重錨庫倫真值」之正當性，並為 SOH 延伸提供實證基礎",
+    "41 輪累計衰退約 4.6%（真實老化）",
+    "老化 ≈ 9× 噪聲 → 可乾淨分離",
+    "→ 支撐「逐 cycle 重錨庫倫真值」之正當性，並為 SOH 延伸提供實證資料集",
 ], Inches(6.55), Inches(4.55), Inches(6.25), Inches(2.3), title="老化／噪聲分離",
    fill=RGBColor(0xE6,0xF4,0xEA), tcolor=GREEN)
 
@@ -701,20 +699,24 @@ sidebar_note(s, [
 # =====================================================================
 s = new("結論", "八、結論與方法選用決策表", "核心命題：嵌入式資源約束下的「精度─成本權衡」")
 data = [
-    ["應用約束情境", "首選方法", "主要代價"],
-    ["極低成本/算力（8-bit、無 FPU、Flash<8KB）", "庫倫計數 + 靜置 OCV 修正", "無自我修正、初值錯誤不收斂"],
-    ["中階、需自初值錯誤恢復、長期免校正", "EKF（一階 RC）", "需 OCV 表；運算/Flash/RAM 代價最大"],
-    ["工作中即時、無靜置、實驗成本敏感", "動態阻抗 + 庫倫內插", "中段反推病態；僅事件處獨立估測"],
-    ["高可靠、資源充裕、追求最佳整體", "三法混合", "整合複雜度與資源佔用最高"],
+    ["應用約束情境", "首選方法", "理由（實測依據）", "主要代價（實測依據）"],
+    ["極低成本/算力（8-bit、無 FPU、Flash<8 KB）", "庫倫 + 充飽自動重錨",
+     "資源下界 +1.9 KB／305 cyc；重錨 4/4 消除初值偏移", "無自我修正；精度上限由電流刻度定（±2%）"],
+    ["中階、需自初值恢復、長期免校正", "EKF（一階 RC）",
+     "全倍率最佳 0.22–0.90%；單步收斂；即時性佔 0.024%", "需 GITT/OCV 表；Flash 最大 +2.3 KB；參數須同域"],
+    ["工作中即時、無靜置、成本敏感", "動態阻抗 + 庫倫內插",
+     "無須初值/靜置、首事件 ≤60 s；建表成本最低", "線上單獨反推不可行 23–31%；僅低 SOC 粗校正"],
+    ["高可靠、資源充裕、追求最佳整體", "三法混合",
+     "互補；並行峰值僅佔每秒預算 0.034%", "整合複雜度最高；Flash +4.9 KB（RAM 可加 +112 B）"],
 ]
-add_table(s, data, Inches(0.55), Inches(1.5), Inches(12.25), Inches(3.0),
-          col_w=[4.2, 3.3, 4.5], fs=13.5)
-caption(s, "表 6-1　SOC 方法選用決策表（動態阻抗為實測，餘待 [待測] 回填升級為定量）",
-        Inches(0.55), Inches(4.65), Inches(12.25))
+add_table(s, data, Inches(0.55), Inches(1.5), Inches(12.25), Inches(3.1),
+          col_w=[3.0, 2.4, 3.7, 3.4], fs=12)
+caption(s, "表 6-1　SOC 方法選用決策表（全研究實測結論版；各欄數值均出自同硬體實測）",
+        Inches(0.55), Inches(4.75), Inches(12.25))
 sidebar_note(s, [
-    "不存在單一最優方法 — 最優選擇取決於目標硬體資源約束與應用需求",
-    "本研究價值：將此權衡由「文獻中的定性印象」轉化為「同硬體實測支撐的決策依據」",
-], Inches(0.55), Inches(5.15), Inches(12.25), Inches(1.6), title="核心結論",
+    "結論一：不存在單一最優方法 — 最優選擇取決於目標硬體資源約束與應用需求",
+    "結論二（本研究核心）：演算法的精度上限往往不由演算法決定 — 量測鏈刻度、參數辨識域與部署域的一致性，其誤差貢獻數倍於演算法彼此差距",
+], Inches(0.55), Inches(5.22), Inches(12.25), Inches(1.55), title="兩個結論",
    fill=RGBColor(0xFD,0xF3,0xE0), tcolor=GOLD)
 
 # =====================================================================
@@ -727,13 +729,13 @@ tf = add_text(s, Inches(0.75), Inches(1.45), Inches(5.6), Inches(0.5), anchor=MS
 r = tf.paragraphs[0].add_run(); r.text = "研究限制"; _set(r, 18, True, WHITE)
 tf = add_text(s, Inches(0.8), Inches(2.15), Inches(5.55), Inches(3.9))
 for i, t in enumerate([
-    "單一電池化學體系與樣本（僅一顆 NMC）",
-    "室溫、無溫度補償",
-    "僅做 SOC，未做 SOH（已測到可分離老化訊號）",
-    "rate capability 平坦為有利條件",
-    "EKF 精度與三法 footprint 部分待實測回填",
+    "單一 NMC 電池、室溫、無溫度補償",
+    "僅做 SOC，未做 SOH（已測到可分離的 4.6% 老化訊號）",
+    "rate capability 平坦：對 EKF 有利、對動態阻抗致命，結論不宜外推",
+    "EKF 參數/PC 重放為 in-sample，獨立驗證由兩整輪板端實測承擔",
+    "板端與台架電流鏈約 1.2% 刻度差，絕對精度含此構成",
 ]):
-    para(tf, t, 14, first=(i == 0), space_after=8)
+    para(tf, t, 14, first=(i == 0), space_after=7)
 
 rect(s, Inches(6.85), Inches(1.4), Inches(5.95), Inches(4.7), RGBColor(0xE6,0xF4,0xEA))
 rect(s, Inches(6.85), Inches(1.4), Inches(5.95), Inches(0.6), GREEN)
