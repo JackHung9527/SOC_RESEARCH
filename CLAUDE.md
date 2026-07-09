@@ -39,6 +39,23 @@ The project is transitioning from a pure documentation/literature review phase i
 
 ## 今日總結
 
+### 2026/07/09（論文 20260707 排版修正：字距撐開與紅字）
+
+#### ✅ 完成項目
+- 診斷 `_20260707.docx` 內文「有些字那麼開」成因：內文段落為兩端對齊（both），遇不能斷行的英文縮寫（MATLAB／SOC／MCU／OCV／RMSE）時整串英文被推到下一行，剩下的中文行被強制撐滿整寬 → 字距拉開；確認非資料損毀（run 僅有正常 `w:kern`，無 run 層字距膨脹）
+- 依使用者選擇試把內文 197 段（192 內文＋3 條列＋2 其他）由 both 改 left 靠左對齊；使用者反映靠左後右邊界參差、英文縮寫卡行尾的斷行更奇怪，最終決定改回兩端對齊
+- 表格內 44 處實測數據深紅字（`w:color C00000`）全部改黑字（000000）
+- 最終定案檔：兩端對齊 197 段回復、原靠左標題／圖說 308 段不動、紅字歸零、8 張圖完整、XML 合法；就地存回同一版（未進版）
+
+#### 🐛 問題與踩坑
+- docx 改動一律用 zipfile 讀 `word/document.xml` 原始字串做 `str.replace` 再逐 entry 原樣重打包，不用 python-docx 整檔重存（避免破壞 VML／namespace）
+- **git checkout HEAD 還原陷阱**：為精準還原靠左實驗（不能無腦把 505 個 left 全改回 both，會誤傷原本就該靠左的 308 段標題），改從 git 拉回原檔——卻發現工作區那份被 Word／LibreOffice 重存過而膨脹（1.9MB／52 entries），git HEAD 是精簡 build 版（994KB／36 entries）；session 起始 git status 顯示 clean 是舊快照，實際工作區為 dirty。經逐項比對（摘要 621 字 byte-exact、8 圖全在、各章／參考文獻齊全）確認 document.xml 內容一致、無內容損失，差異僅打包附加物（縮圖／頁首／customXml）
+- 中英混排先天取捨：兩端對齊→字被撐開、靠左→右邊參差，無法兩全；正式中文論文以兩端對齊為標準
+
+#### 📋 待辦
+- 使用者在 Word（標楷體環境）目視確認最終排版；若某幾行撐開過於誇張可局部微調（關鍵縮寫前後塞不換行空格）
+- 論文其餘既有待辦（封面三項、EKF/footprint 實測數字、第五六章、方程式編輯器重排等）延續
+
 ### 2026/07/02（三種 SOC 估測法韌體實作＋圖 3-2＋論文進版）
 
 #### ✅ 完成項目
