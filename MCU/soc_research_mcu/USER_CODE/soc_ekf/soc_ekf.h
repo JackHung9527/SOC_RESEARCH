@@ -26,6 +26,13 @@ void  soc_ekf_init(void);                       /* 以 model_set 預設初值/�
 void  soc_ekf_seed_from_voltage(float v_mv);    /* 開機近似靜置時，以 OCV 反查播種初始 SOC */
 void  soc_ekf_set_soc(float soc_pct);           /* 強制設初值（強健性測試用，0..100） */
 void  soc_ekf_update_1s(float i_ma, float v_mv);/* 每秒一次預測—更新（放電為正） */
+
+/* 靈敏度加權融合（§3）：以動態阻抗法之閘控 SOC 觀測做額外一次量測更新。
+ * 觀測方程 z = SOC（C = [1, 0]），r_var 為該觀測之量測變異數（SOC-frac²，
+ * 由 soc_zdyn 依局部靈敏度導出）；純量增益、Joseph form 更新協方差。
+ * 只在有通過閘控之擾動事件的 tick 呼叫（見 soc_zdyn_take_gated_event）。 */
+void  soc_ekf_correct_soc(float soc_frac, float r_var);
+
 float soc_ekf_get_soc_pct(void);                /* 目前估測 SOC（0..100） */
 float soc_ekf_get_v1_mv(void);                  /* 極化電壓狀態 V1（mV，診斷用） */
 

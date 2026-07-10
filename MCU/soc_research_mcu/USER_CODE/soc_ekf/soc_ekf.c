@@ -168,6 +168,33 @@ void soc_ekf_update_1s(float i_ma, float v_mv)
     s_v1  = clampf(s_v1, -0.5f, 0.5f);
 }
 
+void soc_ekf_correct_soc(float soc_frac, float r_var)
+{
+    /* 直接觀測 SOC：C = [1, 0] → PCᵀ = [p00, p01]、S = p00 + R（純量）。 */
+    float e = soc_frac - s_soc;
+    float s = s_p00 + r_var;
+    float k0 = s_p00 / s;
+    float k1 = s_p01 / s;
+
+    s_soc += k0 * e;
+    s_v1  += k1 * e;
+
+    /* Joseph 形式：M = I − KC = [[1−k0, 0], [−k1, 1]]，P = M P Mᵀ + K R Kᵀ */
+    float m00 = 1.0f - k0;
+    float m10 = -k1;
+
+    float t00 = (m00 * s_p00);                   /* M P 第一列（m01=0；t01 不參與下列運算） */
+    float t10 = (m10 * s_p00) + s_p01;           /* M P 第二列（m11=1） */
+    float t11 = (m10 * s_p01) + s_p11;
+
+    s_p00 = (t00 * m00) + (k0 * k0 * r_var);      /* Mᵀ 第一行 = [m00; 0] */
+    s_p01 = (t10 * m00) + (k0 * k1 * r_var);
+    s_p11 = (t10 * m10) + t11 + (k1 * k1 * r_var);/* Mᵀ 第二行 = [m10; 1] */
+
+    s_soc = clampf(s_soc, 0.0f, 1.0f);
+    s_v1  = clampf(s_v1, -0.5f, 0.5f);
+}
+
 float soc_ekf_get_soc_pct(void)
 {
     return s_soc * 100.0f;

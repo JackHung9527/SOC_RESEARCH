@@ -169,6 +169,30 @@
 #define SOC_ZDYN_DI_MIN_MA         300.0f    /* |ΔI| 下限：低於此視為非擾動 */
 #define SOC_ZDYN_DI_MAX_MA         4500.0f   /* |ΔI| 上限：剔除 C-rate 切換等異常（4.4.2-2） */
 #define SOC_ZDYN_Z_MAX_MOHM        200.0f    /* Z 合理上限：剔除離群量測 */
+
+/* ---- 分箱平均降噪（§A 解法：反解前先平均同 SOC 區間之多個事件 Z） ----
+ * 根因：Z(SOC) 全程僅擺動 ~6 mΩ，但單次事件 Z 散布達 ±50 mΩ（SNR≪1），
+ * per-event 反解等於解雜訊。以模組內建庫倫參考（協定自滿電起放）為 SOC 索引，
+ * 把落在同一箱之事件 Z 累積平均後才反解（√N 降噪，複刻論文離線平均管線），
+ * 分枝改取距庫倫參考最近之根（比雜訊 SOC 之趨勢判斷穩健）。 */
+#define SOC_ZDYN_SOC0_PCT          100.0f    /* 庫倫參考初值（供分箱與分枝；同 soc_coulomb 假設） */
+#define SOC_ZDYN_NBINS             20        /* 沿 SOC 0..100% 等距分箱數（每箱 5%） */
+#define SOC_ZDYN_BIN_MIN_N         3U        /* 該箱事件數達此值才採平均 Z；未達暫用單次值 */
+
+/* ---- 靈敏度加權融合（§3 解法：把 Z 反解 SOC 當 EKF 觀測餵入） ----
+ * Z(SOC) 為拋物線，頂點附近 dZ/dSOC→0 → 反解病態（中段 RMSE 9–13%）。
+ * 事件解出 SOC 後算局部靈敏度 g = |2a·SOC + b|（mΩ/SOC-frac），
+ * 量測標準差 σ_soc = σ_Z / g、變異數 R = (σ_Z/g)²。中段 g 小 → R 爆大，
+ * 由 R_VAR_MAX 硬閘掉；只在兩端（g 大）把觀測餵進 EKF 拉回庫倫漂移。 */
+/* 預設關閉：實測顯示 EKF+GITT OCV 已達 <1% RMSE，而單次事件 Z 散布達 ±數十 mΩ
+ * （遠大於下方 σ_Z 假設值）→ 融合反而汙染已精準之 EKF。保留程式路徑供 SOH／
+ * 初值恢復實驗與板端以真實 σ_Z 重新調校；欲啟用須先把 σ_Z 設為板端實測散布。 */
+#define SOC_ZDYN_EKF_FUSE          0         /* 1 = 事件時把閘控觀測餵進 EKF */
+#define SOC_ZDYN_SIGMA_Z_MOHM      2.0f      /* 事件 Z 量測標準差（[待板端實測]；表 4-3 擬合殘差 0.5–3.5 mΩ
+                                              * 是「跨輪聚合後」值，單次事件散布遠大於此） */
+#define SOC_ZDYN_DZDSOC_FLOOR      3.0f      /* |dZ/dSOC| 下限（mΩ/frac）：防頂點處 R 溢位 */
+#define SOC_ZDYN_R_VAR_MAX         0.0625f   /* 觀測變異數上限 (=0.25²)：σ_soc>25% 之事件不採用
+                                              * → 對應僅信 SOC≲36% 或 ≳81% 之兩端 */
 /* === MODEL_SET_SOC_ZDYN END === */
 
 

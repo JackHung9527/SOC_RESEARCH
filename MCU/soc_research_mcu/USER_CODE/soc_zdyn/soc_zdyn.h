@@ -34,4 +34,11 @@ float    soc_zdyn_get_soc_pct(void);                  /* 0..100（未錨定時�
 float    soc_zdyn_get_last_z_mohm(void);              /* 最近一次事件量得之 |ΔV/ΔI|（mΩ） */
 uint32_t soc_zdyn_get_event_count(void);              /* 累計已採用之擾動事件數 */
 
+/* 靈敏度加權融合（§3）：消費一次「本 tick 是否有新的、且通過靈敏度閘控的事件」。
+ * 有則回 true 並帶出該事件之 Z 反解 SOC（*soc_frac，0..1）與量測變異數
+ * （*r_var，SOC-frac²；= (σ_Z/|dZ/dSOC|)²）供 EKF 觀測更新加權；consume-once
+ * 語意（讀後清旗標）。中段靈敏度不足（σ_soc>25%）之事件視為未通過，回 false。 */
+bool     soc_zdyn_take_gated_event(float *soc_frac, float *r_var);
+uint32_t soc_zdyn_get_fuse_count(void);               /* 累計已餵給 EKF 之閘控事件數 */
+
 #endif /* SOC_ZDYN_H_ */

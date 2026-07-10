@@ -133,6 +133,19 @@ static void soc_estimators_feed_1s(float i_ma, float v_mv)
 	soc_zdyn_update_1s(i_ma, v_mv);
 	s_cyc_z = perf_cyc_end(&t);
 #endif
+
+#if SOC_ZDYN_ENABLE && SOC_EKF_ENABLE && SOC_ZDYN_EKF_FUSE
+	/* §3 靈敏度加權融合：兩端擾動事件（通過閘控）才把 Z 反解 SOC 餵進 EKF，
+	 * 拉回庫倫漂移；中段病態事件已由 soc_zdyn 閘掉。在 perf 計時之外，
+	 * 保持 4.4.3 之 EKF 純預測—更新 cycle 數不受融合污染。 */
+	{
+		float z_soc, z_rvar;
+		if (soc_zdyn_take_gated_event(&z_soc, &z_rvar))
+		{
+			soc_ekf_correct_soc(z_soc, z_rvar);
+		}
+	}
+#endif
 	(void)t;
 }
 
@@ -152,9 +165,10 @@ static void soc_estimators_print(uint32_t seconds)
 #if SOC_ZDYN_ENABLE
 	if (soc_zdyn_has_estimate())
 	{
-		uart_debug_printf(" z=%.2f%%(n=%lu,%.1fmohm,%lucyc)",
+		uart_debug_printf(" z=%.2f%%(n=%lu,f=%lu,%.1fmohm,%lucyc)",
 		                  (double)soc_zdyn_get_soc_pct(),
 		                  (unsigned long)soc_zdyn_get_event_count(),
+		                  (unsigned long)soc_zdyn_get_fuse_count(),
 		                  (double)soc_zdyn_get_last_z_mohm(),
 		                  (unsigned long)s_cyc_z);
 	}
