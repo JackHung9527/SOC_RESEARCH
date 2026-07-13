@@ -303,11 +303,11 @@ $$\frac{\Delta V}{\Delta I} = a\,(SOC)^2 + b\,(SOC) + c$$
 
 > 編號沿用前章 [1]–[3]。本章方法依據集中於庫倫計數、EKF 與動態阻抗。
 
-- [1] C.-H. Lin, C.-M. Wang, and C.-Y. Ho, "Implementation of State-of-Charge and State-of-Health Estimation for Lithium-Ion Batteries," 2016. [會議名稱／頁碼待核對]
-- [2] G. L. Bressanini, T. D. C. Busarello, and A. Péres, "Design and Implementation of Lead-Acid Battery State-of-Health and State-of-Charge Measurements," in Proc. IEEE, 2017. [完整會議名稱／頁碼待核對]
-- [3] G. L. Plett, "Extended Kalman Filtering for Battery Management Systems of LiPB-based HEV Battery Packs (Parts 1-3)," Journal of Power Sources, vol. 134, no. 2, pp. 252-292, 2004. [卷期／頁碼待核對]
-- [4] H. He, R. Xiong, and J. Fan, "Evaluation of Lithium-Ion Battery Equivalent Circuit Models for State of Charge Estimation by an Experimental Approach," Energies, vol. 4, no. 4, pp. 582-598, 2011. [卷期／頁碼待核對]
-- [5] W. Weppner and R. A. Huggins, "Determination of the Kinetic Parameters of Mixed-Conducting Electrodes and Application to the System Li3Sb," Journal of The Electrochemical Society, vol. 124, no. 10, pp. 1569-1578, 1977. [卷期／頁碼待核對]
+- [1] C.-H. Lin, C.-M. Wang, and C.-Y. Ho, "Implementation of State-of-Charge and State-of-Health Estimation for Lithium-Ion Batteries," in Proc. IECON 2016 - 42nd Annu. Conf. IEEE Industrial Electronics Society, Florence, Italy, Oct. 2016, pp. 18-24.
+- [2] G. L. Bressanini, T. D. C. Busarello, and A. Péres, "Design and Implementation of Lead-Acid Battery State-of-Health and State-of-Charge Measurements," in Proc. 2017 Brazilian Power Electronics Conference (COBEP), Juiz de Fora, Brazil, Nov. 2017, pp. 1-6.
+- [3] G. L. Plett, "Extended Kalman Filtering for Battery Management Systems of LiPB-based HEV Battery Packs (Parts 1-3)," Journal of Power Sources, vol. 134, no. 2, pp. 252-292, 2004.
+- [4] H. He, R. Xiong, and J. Fan, "Evaluation of Lithium-Ion Battery Equivalent Circuit Models for State of Charge Estimation by an Experimental Approach," Energies, vol. 4, no. 4, pp. 582-598, 2011.
+- [5] W. Weppner and R. A. Huggins, "Determination of the Kinetic Parameters of Mixed-Conducting Electrodes and Application to the System Li3Sb," Journal of The Electrochemical Society, vol. 124, no. 10, pp. 1569-1578, 1977.
 
 > 註：標 `[待補引用]` 之內容（一階 RC 之 ZOH 離散化、EKF Joseph 形式協方差更新、軟浮點負擔之通則）為狀態估測與嵌入式數值之共識性知識，本稿未虛構特定文獻。定稿前建議補入卡爾曼濾波 SOC 估測經典（如 Plett 之 EKF 系列）作為 4.2 節之外部依據。
 
