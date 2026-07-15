@@ -90,7 +90,7 @@ $$SOC(t) = SOC(t_0) - \frac{1}{C_{rated}} \int_{t_0}^{t} I(\tau)\, d\tau$$
 
 ### 4.2.1 原理與狀態空間模型
 
-EKF 將 SOC 視為動態系統的隱藏狀態，融合「電流積分（模型預測）」與「端電壓（量測更新）」兩路資訊，在過程雜訊與量測雜訊並存下對 SOC 做遞迴最小均方誤差估測，兼具庫倫計數的良好動態與 OCV 的絕對校正能力，並能自初值錯誤收斂（第二章 2.2.3 節）。
+EKF 將 SOC 視為動態系統的隱藏狀態，融合「電流積分（模型預測）」與「端電壓（量測更新）」兩路資訊，在過程雜訊與量測雜訊並存下對 SOC 做遞迴最小均方誤差估測，兼具庫倫計數的良好動態與 OCV 的絕對校正能力，並能自初值錯誤收斂（第二章 2.2.3 節）[3]。
 
 採第二章 2.1.3 節所述之一階 RC（戴維寧）模型作為基礎結構，狀態取 $\mathbf{x} = [SOC,\ V_1]^T$，輸入 $u = I$（放電為正），輸出 $y = V_t$。連續時間方程：
 
@@ -106,7 +106,7 @@ $$y_k = V_{OC}(SOC_k) - I_k R_0 - V_{1,k} + v_k$$
 
 ### 4.2.2 觀測非線性與線性化
 
-觀測方程的非線性源自 $V_{OC}(SOC)$。本研究以開路電壓特性量測（GITT 標準協定 [5]）建立之 pseudo-OCV 表 $V_{pseudo}(SOC)$ 作為此函數，於 MCU 上以分段線性內插求值。EKF 量測更新所需之觀測雅可比為：
+觀測方程的非線性源自 $V_{OC}(SOC)$。本研究以開路電壓特性量測（GITT 標準協定）建立之 pseudo-OCV 表 [12] $V_{pseudo}(SOC)$ 作為此函數，於 MCU 上以分段線性內插求值。EKF 量測更新所需之觀測雅可比為：
 
 $$\mathbf{C}_k = \frac{\partial y}{\partial \mathbf{x}}\bigg|_{\hat{\mathbf{x}}_k} = \begin{bmatrix} \dfrac{\partial V_{OC}}{\partial SOC}\bigg|_{\widehat{SOC}_k} & -1 \end{bmatrix}$$
 
@@ -215,7 +215,7 @@ $$\frac{\Delta V}{\Delta I} = a\,(SOC)^2 + b\,(SOC) + c$$
 
 **同域係數之線上複測（Round 41）——反解病態性的定量揭示**：以板端域係數、放電向過濾與 3 s dwell 複測整輪，量測與反解鏈路全數正常（事件 Z 值 P10–P90 = 32.4–37.5 mΩ 落於曲線值域內、判別式有實根），但線上 SOC 之 RMSE 仍達 23–31%：事件時反解誤差中位數僅 −4.9%，然而 |誤差| > 20% 之事件佔 40%、真值於頂點高側（>65%）時選錯根比例達 46%。其根因不再是任何實作缺陷，而是**反問題本質病態**：本電芯於電池端域之 $Z$–SOC 曲線全跨度僅約 6 mΩ，而單事件量測噪聲 σ ≈ 2 mΩ（噪聲佔跨度三分之一）；中段斜率 $|dZ/dSOC|$ 僅 5–7 mΩ／100%SOC，單事件噪聲即傳播為 ±30–40% 的 SOC 不確定度，且頂點兩側之分枝判斷在此噪聲水準下形同隨機。表 4-3 之離線精度（6–10%）係「假設分枝正確」之 oracle 上界，線上無 oracle 可依。
 
-**結論**：對此類 $Z$–SOC 曲線平坦之電芯，動態阻抗**線上單獨反推不可行**——即便量測域、係數域、取樣時序全部正確。本法之實用價值收斂為兩點：(a) 於混合策略中僅在曲線陡峭之低 SOC 端（$|dZ/dSOC|$ ≈ 14 mΩ／100%SOC）提供粗離散校正；(b) 作為老化指標（$Z$ 之絕對值隨循環成長，見第六章 6.4.1 內阻成長法）[13]。此結論本身即為公平比較框架之產出：文獻 [1] 之方法在其原始（鉛酸、負載端量測）情境可行，移植至 NMC＋電池端子量測情境則受曲線平坦度宰制——**方法的可行性邊界由電芯特性與量測鏈共同決定，而非方法本身的普適屬性**。
+**結論**：對此類 $Z$–SOC 曲線平坦之電芯，動態阻抗**線上單獨反推不可行**——即便量測域、係數域、取樣時序全部正確。本法之實用價值收斂為兩點：(a) 於混合策略中僅在曲線陡峭之低 SOC 端（$|dZ/dSOC|$ ≈ 14 mΩ／100%SOC）提供粗離散校正；(b) 作為老化指標（$Z$ 之絕對值隨循環成長，見第六章 6.4.1 內阻成長法）[11]。此結論本身即為公平比較框架之產出：文獻 [1] 之方法在其原始（鉛酸、負載端量測）情境可行，移植至 NMC＋電池端子量測情境則受曲線平坦度宰制——**方法的可行性邊界由電芯特性與量測鏈共同決定，而非方法本身的普適屬性**。
 
 三方法（含 EKF）之整體精度將於 4.4 節在同一框架下比較。
 
@@ -305,18 +305,17 @@ $$\frac{\Delta V}{\Delta I} = a\,(SOC)^2 + b\,(SOC) + c$$
 
 - [1] C.-H. Lin, C.-M. Wang, and C.-Y. Ho, "Implementation of State-of-Charge and State-of-Health Estimation for Lithium-Ion Batteries," in Proc. IECON 2016 - 42nd Annu. Conf. IEEE Industrial Electronics Society, Florence, Italy, Oct. 2016, pp. 18-24.
 - [2] G. L. Bressanini, T. D. C. Busarello, and A. Péres, "Design and Implementation of Lead-Acid Battery State-of-Health and State-of-Charge Measurements," in Proc. 2017 Brazilian Power Electronics Conference (COBEP), Juiz de Fora, Brazil, Nov. 2017, pp. 1-6.
-- [3] G. L. Plett, "Extended Kalman Filtering for Battery Management Systems of LiPB-based HEV Battery Packs (Parts 1-3)," Journal of Power Sources, vol. 134, no. 2, pp. 252-292, 2004.
-- [4] H. He, R. Xiong, and J. Fan, "Evaluation of Lithium-Ion Battery Equivalent Circuit Models for State of Charge Estimation by an Experimental Approach," Energies, vol. 4, no. 4, pp. 582-598, 2011.
-- [5] W. Weppner and R. A. Huggins, "Determination of the Kinetic Parameters of Mixed-Conducting Electrodes and Application to the System Li3Sb," Journal of The Electrochemical Society, vol. 124, no. 10, pp. 1569-1578, 1977.
-- [6] R. E. Kalman, "A New Approach to Linear Filtering and Prediction Problems," Transactions of the ASME—Journal of Basic Engineering, vol. 82, no. 1, pp. 35-45, 1960.
-- [7] G. L. Plett, "Sigma-Point Kalman Filtering for Battery Management Systems of LiPB-based HEV Battery Packs: Part 1 and Part 2," Journal of Power Sources, vol. 161, no. 2, pp. 1356-1384, 2006.
-- [8] F. Sun, X. Hu, Y. Zou, and S. Li, "Adaptive Unscented Kalman Filtering for State of Charge Estimation of a Lithium-Ion Battery for Electric Vehicles," Energy, vol. 36, no. 5, pp. 3531-3540, 2011.
-- [9] K. S. Ng, C.-S. Moo, Y.-P. Chen, and Y.-C. Hsieh, "Enhanced Coulomb Counting Method for Estimating State-of-Charge and State-of-Health of Lithium-Ion Batteries," Applied Energy, vol. 86, no. 9, pp. 1506-1511, 2009.
-- [10] R. Xiong, J. Cao, Q. Yu, H. He, and F. Sun, "Critical Review on the Battery State of Charge Estimation Methods for Electric Vehicles," IEEE Access, vol. 6, pp. 1832-1843, 2018.
-- [11] M. A. Hannan, M. S. H. Lipu, A. Hussain, and A. Mohamed, "A Review of Lithium-Ion Battery State of Charge Estimation and Management System in Electric Vehicle Applications: Challenges and Recommendations," Renewable and Sustainable Energy Reviews, vol. 78, pp. 834-854, 2017.
-- [12] X. Hu, S. Li, and H. Peng, "A Comparative Study of Equivalent Circuit Models for Li-ion Batteries," Journal of Power Sources, vol. 198, pp. 359-367, 2012.
-- [13] W. Waag, S. Käbitz, and D. U. Sauer, "Experimental Investigation of the Lithium-Ion Battery Impedance Characteristic at Various Conditions and Aging States and Its Influence on the Application," Applied Energy, vol. 102, pp. 885-897, 2013.
-- [14] M. A. Roscher and D. U. Sauer, "Dynamic Electric Behavior and Open-Circuit-Voltage Modeling of LiFePO4-Based Lithium Ion Secondary Batteries," Journal of Power Sources, vol. 196, no. 1, pp. 331-336, 2011.
+- [3] A. Hasan, M. Skriver, and T. A. Johansen, "eXogenous Kalman Filter for Lithium-Ion Batteries State-of-Charge Estimation in Electric Vehicles," arXiv preprint arXiv:1810.09014, 2018.
+- [4] Z. Song, J. Hou, X. Li, X. Wu, X. Hu, H. Hofmann, and J. Sun, "The Sequential Algorithm for Combined State of Charge and State of Health Estimation of Lithium-Ion Battery Based on Active Current Injection," arXiv preprint arXiv:1901.06000, 2019.
+- [5] Y. Qin, S. Adams, and C. Yuen, "A Transfer Learning-Based State of Charge Estimation for Lithium-Ion Battery at Varying Ambient Temperatures," accepted by IEEE Transactions on Industrial Informatics, 2021 (preprint: arXiv:2101.03704).
+- [6] B. Yi, X. Du, J. Zhang, X. Wu, Q. Hu, W. Jiang, X. Hu, and Z. Song, "Bias-Compensated State of Charge and State of Health Joint Estimation for Lithium Iron Phosphate Batteries," arXiv preprint arXiv:2401.08136, 2024.
+- [7] A. Barros, E. Peretti, D. Fabroni, D. Carrera, P. Fragneto, and G. Boracchi, "Adaptive Extended Kalman Filtering for Battery State of Charge Estimation on STM32," arXiv preprint arXiv:2504.05936, 2025.
+- [8] K. Movassagh, S. A. Raihan, B. Balasingam, and K. Pattipati, "A Critical Look at Coulomb Counting Towards Improving the Kalman Filter Based State of Charge Tracking Algorithms in Rechargeable Batteries," arXiv preprint arXiv:2101.05435, 2021.
+- [9] S. Zhao and D. A. Howey, "Global Sensitivity Analysis of Battery Equivalent Circuit Model Parameters," arXiv preprint arXiv:1604.01293, 2016.
+- [10] L. D. Couto and M. Kinnaert, "Partition-Based Unscented Kalman Filter for Reconfigurable Battery Pack State Estimation Using an Electrochemical Model," arXiv preprint arXiv:1709.07816, 2017.
+- [11] A. Kulkarni, A. Nadeem, R. Di Fonso, Y. Zheng, and R. Teodorescu, "Novel Low-Complexity Model Development for Li-ion Cells Using Online Impedance Measurement," arXiv preprint arXiv:2402.07777, 2024.
+- [12] I. Baccouche, S. Jemmali, A. Mlayah, B. Manai, and N. Essoukri Ben Amara, "Implementation of an Improved Coulomb-Counting Algorithm Based on a Piecewise SOC-OCV Relationship for SOC Estimation of Li-Ion Battery," arXiv preprint arXiv:1803.10654, 2018.
+- [13] J. Knox, M. Blyth, and A. Hales, "Advancing State Estimation for Lithium-Ion Batteries with Hysteresis: Systematic Extended Kalman Filter Tuning," arXiv preprint arXiv:2311.16942, 2023.
 
 > 註：標 `[待補引用]` 之內容（一階 RC 之 ZOH 離散化、EKF Joseph 形式協方差更新、軟浮點負擔之通則）為狀態估測與嵌入式數值之共識性知識，本稿未虛構特定文獻。定稿前建議補入卡爾曼濾波 SOC 估測經典（如 Plett 之 EKF 系列）作為 4.2 節之外部依據。
 
