@@ -104,7 +104,7 @@ def footer(slide, tag):
     tf2 = add_text(slide, Inches(12.2), Inches(7.04), Inches(0.9), Inches(0.4),
                    anchor=MSO_ANCHOR.MIDDLE)
     p2 = tf2.paragraphs[0]; p2.alignment = PP_ALIGN.RIGHT
-    r2 = p2.add_run(); r2.text = "%d / 20" % PAGE[0]; _set(r2, 10, False, GREY)
+    r2 = p2.add_run(); r2.text = "%d / 21" % PAGE[0]; _set(r2, 10, False, GREY)
 
 
 def new(tag, title=None, sub=None):
@@ -350,7 +350,7 @@ data = [
     ["庫倫計數", "✓ 實作", "直接計量", "必備 baseline，兼任三方法比較之 ground truth（基準真值）"],
     ["OCV 查表（獨立）", "✗ 排除", "直接計量", "需長時間靜置，與 rate-capability 協定相斥；改以 GITT 表供 EKF 用"],
     ["EKF", "✓ 實作", "模型基礎", "工業事實標準；可自初值錯誤收斂；以 GITT OCV 表為觀測方程"],
-    ["動態阻抗", "✓ 實作", "模型基礎", "文獻 [1] 主推；無須初值、即時可算、嵌入式友善；複用既有 dV/dI 擾動"],
+    ["動態阻抗", "✓ 實作", "模型基礎", "本研究主要方法；無須初值、即時可算、嵌入式友善；複用既有 dV/dI 擾動"],
 ]
 add_table(s, data, Inches(0.55), Inches(1.5), Inches(12.25), Inches(3.0),
           col_w=[1.9, 1.2, 1.3, 6.5], fs=14)
@@ -626,7 +626,37 @@ sidebar_note(s, [
    fill=RGBColor(0xFD,0xF3,0xE0), tcolor=GOLD)
 
 # =====================================================================
-# 17. 三方法比較
+# 17. 三法 SOC 軌跡實測對照 + 動態阻抗三種失效型態
+# =====================================================================
+s = new("三法SOC軌跡對照", "六、三法 SOC 軌跡實測對照",
+        "同一輪四倍率放電，三法軌跡疊繪台架庫倫真值 — 動態阻抗跳動的三種失效型態")
+add_image_fit(s, os.path.join(FIG, "fig4-6.png"), Inches(0.45), Inches(1.3),
+              Inches(6.85), Inches(4.35))
+caption(s, "圖 4-6　儀器庫倫真值 vs 板端庫倫／EKF／動態阻抗（Round 41，各面板標 RMSE）",
+        Inches(0.45), Inches(5.72), Inches(6.85))
+sidebar_note(s, [
+    "選錯分枝 → 解落到頂點另一側的鏡像位置",
+    "真值 90% 時另一根約在 27% → 軌跡瞬間上下對翻",
+], Inches(7.0), Inches(1.25), Inches(5.85), Inches(1.28),
+   title="失效 ①　鏡像跳變", fill=RGBColor(0xFB, 0xEA, 0xEA), tcolor=RED)
+sidebar_note(s, [
+    "噪聲使 Z 低於曲線最低值 33.4 mΩ → 判別式無實根",
+    "只能夾限輸出頂點 58.6%；Round 41 中 111／425 事件（26%）落此",
+], Inches(7.0), Inches(2.60), Inches(5.85), Inches(1.48),
+   title="失效 ②　頂點夾限平台", fill=RGBColor(0xFD, 0xF3, 0xE0), tcolor=GOLD)
+sidebar_note(s, [
+    "每事件獨立重錨、無共變異數機制可降權劣質觀測",
+    "單一錯誤解原封保留至下一事件（EKF 靠共變異數避免）",
+], Inches(7.0), Inches(4.15), Inches(5.85), Inches(1.28),
+   title="失效 ③　無不確定度加權", fill=LBLUE, tcolor=NAVY)
+sidebar_note(s, [
+    "同噪聲抖動：庫倫 0.005%／EKF 0.018%／動態阻抗 53%（差 3–4 級）",
+    "→ 病態源自曲線跨度僅噪聲 3 倍，與感測器品質無關",
+], Inches(7.0), Inches(5.50), Inches(5.85), Inches(1.30),
+   title="為何是方法本質、非感測器", fill=RGBColor(0xFD, 0xF3, 0xE0), tcolor=GOLD)
+
+# =====================================================================
+# 18. 三方法比較
 # =====================================================================
 s = new("方法比較", "六、三方法公平比較（全實測）", "精度 × 強健性 × 嵌入式資源（同電池・同協定・同 MCU・同量測路徑）")
 data = [
@@ -697,26 +727,26 @@ sidebar_note(s, [
 # =====================================================================
 # 19. 結論 + 決策表
 # =====================================================================
-s = new("結論", "八、結論與方法選用決策表", "核心命題：嵌入式資源約束下的「精度─成本權衡」")
+s = new("結論", "八、結論：什麼情況該用哪個方法", "一句話：在小晶片上，「要多準」跟「要花多少資源」怎麼取捨")
 data = [
-    ["應用約束情境", "首選方法", "理由（實測依據）", "主要代價（實測依據）"],
-    ["極低成本/算力（8-bit、無 FPU、Flash<8 KB）", "庫倫 + 充飽自動重錨",
-     "資源下界 +1.9 KB／305 cyc；重錨 4/4 消除初值偏移", "無自我修正；精度上限由電流刻度定（±2%）"],
-    ["中階、需自初值恢復、長期免校正", "EKF（一階 RC）",
-     "全倍率最佳 0.22–0.90%；單步收斂；即時性佔 0.024%", "需 GITT/OCV 表；Flash 最大 +2.3 KB；參數須同域"],
-    ["工作中即時、無靜置、成本敏感", "動態阻抗 + 庫倫內插",
-     "無須初值/靜置、首事件 ≤60 s；建表成本最低", "線上單獨反推不可行 23–31%；僅低 SOC 粗校正"],
-    ["高可靠、資源充裕、追求最佳整體", "三法混合",
-     "互補；並行峰值僅佔每秒預算 0.034%", "整合複雜度最高；Flash +4.9 KB（RAM 可加 +112 B）"],
+    ["產品是什麼情況", "建議用哪個", "為什麼（都有實測）", "要付出的代價"],
+    ["晶片很陽春、要省成本（8 位元、無浮點運算、記憶體小）", "庫倫計數＋充飽自動歸零",
+     "最省資源；充飽時自動抓回 100%（整輪 4 次全中），開機猜錯也救得回來", "自己不會修正；能多準由電流量測決定（約 ±2%）"],
+    ["中階晶片；要能從開機錯誤自己回正、長期免校正", "EKF（卡爾曼濾波）",
+     "四種放電都最準（都在 1% 內）；開機猜錯一步就拉回；只佔算力萬分之 2", "要先建一張電壓對照表；最吃記憶體（+2.3 KB）；參數要跟實機同一量測點"],
+    ["電池在工作中、沒空靜置、又想省成本", "動態阻抗＋庫倫補內插",
+     "不用開機值、不用靜置，一分鐘內就有第一個估計；建表最省事", "單獨線上用會亂跳（誤差 23–31%），只能在低電量端做粗略校正"],
+    ["要求高可靠、資源夠、想要整體最好", "三個方法一起用",
+     "彼此補位；三個同時跑也只佔算力萬分之 3.4", "整合最複雜；多花約 4.9 KB 記憶體"],
 ]
 add_table(s, data, Inches(0.55), Inches(1.5), Inches(12.25), Inches(3.1),
           col_w=[3.0, 2.4, 3.7, 3.4], fs=12)
-caption(s, "表 6-1　SOC 方法選用決策表（全研究實測結論版；各欄數值均出自同硬體實測）",
+caption(s, "表 6-1　什麼情況該用哪個方法（每一格的數字都出自同一顆晶片的實測）",
         Inches(0.55), Inches(4.75), Inches(12.25))
 sidebar_note(s, [
-    "結論一：不存在單一最優方法 — 最優選擇取決於目標硬體資源約束與應用需求",
-    "結論二（本研究核心）：演算法的精度上限往往不由演算法決定 — 量測鏈刻度、參數辨識域與部署域的一致性，其誤差貢獻數倍於演算法彼此差距",
-], Inches(0.55), Inches(5.22), Inches(12.25), Inches(1.55), title="兩個結論",
+    "結論一：沒有哪個方法「永遠最好」——選哪個要看你的晶片有多少資源、產品需要什麼",
+    "結論二（本研究最想講的）：一個方法準不準，常常不是演算法本身決定的——真正關鍵是「量測準不準」和「調參數時的環境跟實機是不是同一個」，這些造成的誤差比三個演算法彼此的差距還大好幾倍",
+], Inches(0.55), Inches(5.22), Inches(12.25), Inches(1.55), title="兩句話總結",
    fill=RGBColor(0xFD,0xF3,0xE0), tcolor=GOLD)
 
 # =====================================================================
@@ -726,28 +756,28 @@ s = new("未來工作", "八、研究限制與未來工作", None)
 rect(s, Inches(0.55), Inches(1.4), Inches(6.0), Inches(4.7), RGBColor(0xFB,0xEA,0xEA))
 rect(s, Inches(0.55), Inches(1.4), Inches(6.0), Inches(0.6), RED)
 tf = add_text(s, Inches(0.75), Inches(1.45), Inches(5.6), Inches(0.5), anchor=MSO_ANCHOR.MIDDLE)
-r = tf.paragraphs[0].add_run(); r.text = "研究限制"; _set(r, 18, True, WHITE)
+r = tf.paragraphs[0].add_run(); r.text = "這份研究還有哪些限制"; _set(r, 18, True, WHITE)
 tf = add_text(s, Inches(0.8), Inches(2.15), Inches(5.55), Inches(3.9))
 for i, t in enumerate([
-    "單一 NMC 電池、室溫、無溫度補償",
-    "僅做 SOC，未做 SOH（已測到可分離的 4.6% 老化訊號）",
-    "rate capability 平坦：對 EKF 有利、對動態阻抗致命，結論不宜外推",
-    "EKF 參數/PC 重放為 in-sample，獨立驗證由兩整輪板端實測承擔",
-    "板端與台架電流鏈約 1.2% 刻度差，絕對精度含此構成",
+    "只測了一顆 NMC 電池、室溫、沒做溫度補償",
+    "只做電量（SOC），還沒做健康度（SOH）——但已量到能分辨的老化訊號（41 輪掉約 4.6%）",
+    "這顆電池「大電流也幾乎不掉電量」：對 EKF 有利、對動態阻抗卻是致命傷，結論不能直接套到別顆電池",
+    "EKF 的參數跟電腦驗證用同一份資料（等於自己驗自己）；真正的公正驗證靠兩整輪實機實測",
+    "板端跟儀器兩套電流量測本身差約 1.2%，看絕對精度時要把這個算進去",
 ]):
     para(tf, t, 14, first=(i == 0), space_after=7)
 
 rect(s, Inches(6.85), Inches(1.4), Inches(5.95), Inches(4.7), RGBColor(0xE6,0xF4,0xEA))
 rect(s, Inches(6.85), Inches(1.4), Inches(5.95), Inches(0.6), GREEN)
 tf = add_text(s, Inches(7.05), Inches(1.45), Inches(5.6), Inches(0.5), anchor=MSO_ANCHOR.MIDDLE)
-r = tf.paragraphs[0].add_run(); r.text = "未來工作"; _set(r, 18, True, WHITE)
+r = tf.paragraphs[0].add_run(); r.text = "接下來想做什麼"; _set(r, 18, True, WHITE)
 tf = add_text(s, Inches(7.1), Inches(2.15), Inches(5.5), Inches(3.9))
-para(tf, "SOH 估測延伸", 15, True, NAVY, first=True, space_after=2)
-para(tf, "容量衰退追蹤、內阻成長法、投影法/ICA（複用既有量測）", 13, level=1, space_after=8)
-para(tf, "LFP 電池遲滯處理", 15, True, NAVY, space_after=2)
-para(tf, "遲滯狀態模型擴充至 EKF；動態阻抗不依賴 OCV 之對照", 13, level=1, space_after=8)
-para(tf, "資料驅動融合與雲端 fleet learning", 15, True, NAVY, space_after=2)
-para(tf, "輕量 NN 融合三法輸出；多電池雲端回饋校正", 13, level=1, space_after=0)
+para(tf, "接著做電池「健康度」（SOH）", 15, True, NAVY, first=True, space_after=2)
+para(tf, "追容量衰退、用內阻變化估老化——可以直接沿用現在的量測，成本很低", 13, level=1, space_after=8)
+para(tf, "處理 LFP 電池的電壓遲滯", 15, True, NAVY, space_after=2)
+para(tf, "把遲滯放進 EKF；動態阻抗不靠電壓對照表，反而有機會", 13, level=1, space_after=8)
+para(tf, "用 AI 融合，多顆電池上雲端一起學", 15, True, NAVY, space_after=2)
+para(tf, "用輕量神經網路把三個方法的輸出融合；多顆電池的資料回雲端互相校正", 13, level=1, space_after=0)
 
 tf = add_text(s, Inches(0.55), Inches(6.35), Inches(12.25), Inches(0.7), anchor=MSO_ANCHOR.MIDDLE)
 p = tf.paragraphs[0]; p.alignment = PP_ALIGN.CENTER
