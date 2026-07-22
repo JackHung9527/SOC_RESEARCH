@@ -39,6 +39,27 @@ The project is transitioning from a pure documentation/literature review phase i
 
 ## 今日總結
 
+### 2026/07/22（產出 TANET 研討會投稿論文 6 頁 PDF：英文正文＋照實驗室參考論文版面）
+
+#### ✅ 完成項目
+- **依使用者實驗室的參考論文版面，產出 6 頁英文投稿論文** 於 `DOC/研討會報告/`（PDF＋同名 docx，檔名用論文英文題目 `A_Comparative_Study_and_Embedded_Implementation_of_SOC_Estimation_Methods_for_Lithium-ion_Batteries`）：A4、**標題區單欄＋正文雙欄**、**中文摘要（標楷體）＋英文 Abstract＋關鍵詞/Keywords**、數字式參考文獻、Times New Roman 10pt／18pt 行距。參考檔為同指導教授（鄭維凱）、同系（資訊工程學系）的 RNN 論文，屬「中文摘要＋英文 Abstract＋英文正文」house style
+- **用 PyMuPDF(fitz) 逆向參考 PDF 版面規格**：解析每個 span 的字級/字型/座標，還原標題 16pt bold、節標題 12/11pt bold、雙欄 x 座標（左 70.8pt／右 304.9pt）、18pt exact 行距、圖說 Times bold 10pt 等，再以此複刻
+- **python-docx 建構＋Word COM 匯 PDF**：連續分節（WD_SECTION.CONTINUOUS）達成「單欄標題→雙欄正文」；關鍵三法 SOC 軌跡圖以「插入 1 欄分節」跨雙欄置中（IEEE figure* 效果）；win32com ExportAsFixedFormat 出 PDF、fitz 逐頁 render 目視驗證
+- **產 2 張英文版圖**（系統架構、三法 SOC 軌跡）：架構圖改寫 matplotlib schematic 英文標籤；SOC 軌跡圖複用本機 Round 41 實測資料（`mcu_soc_log_20260707_210836.log`＋`round041_cyc189–192` CSV）重繪，RMSE 與論文完全一致（EKF 0.22–0.90%、庫倫 1.72–1.98%、阻抗 23–31%）＝管線交叉驗證
+- **內容三軸（精度／強健性／footprint）＋核心賣點「量測域一致性凌駕演算法選擇」全數濃縮成 6 頁**；11 篇參考文獻皆實際引用（無孤兒），全取自論文既有 IEEE 清單
+- 依使用者要求把輸出檔名改為論文英文題目（原 `TANET_SOC_estimation_embedded` → `A_Comparative_Study_and_Embedded_Implementation_of_SOC_Estimation_Methods_for_Lithium-ion_Batteries`，底線串接比照參考檔風格），build/to_pdf 腳本輸出名同步
+
+#### 🐛 問題與踩坑
+- **Git Bash 的 `python3` 打到 Windows Store alias 直接失敗**（Python was not found）；一律用 `python`，中文輸出加 `PYTHONUTF8=1` 並寫檔避開 cp950 console 亂碼
+- **docx 表格跨欄斷裂**：Table 2 的 header 被孤立在左欄底、body 落到右欄頂 → 對每列加 `w:cantSplit`＋非末列 `keep_with_next`，且把 caption 改置於表上並 keep_with_next，整塊才不被欄界切開（表題置上也才符合慣例／參考檔）
+- **參考檔一開始找不到**：使用者用 AskUserQuestion 的 Other 填了英文檔名，實際在 `DOC/研討會報告/refer/`（當天新建）；靠 `AppData/Roaming/.../Recent/*.lnk` 與全碟 find 才定位
+- **簡體字誤植**：Chinese 摘要一度打成「鲜少」「锂離子」，建置前用繁體修正（鮮／鋰）
+
+#### 📋 待辦
+- 學生 email 已填真實學號信箱 `g11277602@cycu.edu.tw`（指導教授 wkcheng@cycu.edu.tw）；送印前僅剩確認**作者英文拼音**（暫用威妥瑪 Ta-Chia Hung；參考檔用漢語拼音風格，可改 Da-Jia Hong）
+- 使用者在 Word 目視投稿論文 docx 最終排版；若要改中文正文版可切換
+- 論文其餘既有待辦（封面三項、方程式編輯器重排等）延續
+
 ### 2026/07/21（論文六章全面潤飾去艱澀＋產出新版 `_20260721.docx`＋合併遠端 13 篇可下載文獻）
 
 #### ✅ 完成項目
