@@ -635,25 +635,26 @@ add_image_fit(s, os.path.join(FIG, "fig4-6.png"), Inches(0.45), Inches(1.3),
 caption(s, "圖 4-6　儀器庫倫真值 vs 板端庫倫／EKF／動態阻抗（Round 41，各面板標 RMSE）",
         Inches(0.45), Inches(5.72), Inches(6.85))
 sidebar_note(s, [
-    "選錯分枝 → 解落到頂點另一側的鏡像位置",
-    "真值 90% 時另一根約在 27% → 軌跡瞬間上下對翻",
-], Inches(7.0), Inches(1.25), Inches(5.85), Inches(1.28),
-   title="失效 ①　鏡像跳變", fill=RGBColor(0xFB, 0xEA, 0xEA), tcolor=RED)
+    "阻抗對 SOC 呈 U 形，一個阻抗值對到左右兩個 SOC",
+    "選錯邊：真值 90% 被讀成 27%，估測值上下對翻",
+], Inches(7.0), Inches(1.16), Inches(5.85), Inches(1.12),
+   title="失效①　選錯邊（鏡像跳變）", fill=RGBColor(0xFB, 0xEA, 0xEA), tcolor=RED)
 sidebar_note(s, [
-    "噪聲使 Z 低於曲線最低值 33.4 mΩ → 判別式無實根",
-    "只能夾限輸出頂點 58.6%；Round 41 中 111／425 事件（26%）落此",
-], Inches(7.0), Inches(2.60), Inches(5.85), Inches(1.48),
-   title="失效 ②　頂點夾限平台", fill=RGBColor(0xFD, 0xF3, 0xE0), tcolor=GOLD)
+    "噪聲讓阻抗掉到 U 形最低點以下 → 方程式無解",
+    "只能卡在最低點 58.6%；Round 41 有 26% 事件如此",
+], Inches(7.0), Inches(2.34), Inches(5.85), Inches(1.20),
+   title="失效②　卡在最低點（頂點夾限）", fill=RGBColor(0xFD, 0xF3, 0xE0), tcolor=GOLD)
 sidebar_note(s, [
-    "每事件獨立重錨、無共變異數機制可降權劣質觀測",
-    "單一錯誤解原封保留至下一事件（EKF 靠共變異數避免）",
-], Inches(7.0), Inches(4.15), Inches(5.85), Inches(1.28),
-   title="失效 ③　無不確定度加權", fill=LBLUE, tcolor=NAVY)
+    "每次從頭猜、不管準不準，猜錯就原封留到下次",
+    "EKF 有記憶：參考過去、對可疑值打折，故不會這樣",
+], Inches(7.0), Inches(3.60), Inches(5.85), Inches(1.14),
+   title="失效③　沒有記憶（無不確定度加權）", fill=LBLUE, tcolor=NAVY)
 sidebar_note(s, [
-    "同噪聲抖動：庫倫 0.005%／EKF 0.018%／動態阻抗 53%（差 3–4 級）",
-    "→ 病態源自曲線跨度僅噪聲 3 倍，與感測器品質無關",
-], Inches(7.0), Inches(5.50), Inches(5.85), Inches(1.30),
-   title="為何是方法本質、非感測器", fill=RGBColor(0xFD, 0xF3, 0xE0), tcolor=GOLD)
+    "整段 SOC，Z 只變約 6 mΩ；單次噪聲 σ≈2 mΩ → 訊號僅噪聲 3 倍",
+    "曲線太平 → 阻抗抖 1 mΩ，反查 SOC 就抖十幾 %；中段 40–60% 最糟",
+    "證據：同噪聲下庫倫抖 0.005%、EKF 0.018%、動態阻抗 53%",
+], Inches(7.0), Inches(4.80), Inches(5.85), Inches(2.05),
+   title="根因：曲線太平放大噪聲（非感測器）", fill=RGBColor(0xFD, 0xF3, 0xE0), tcolor=GOLD)
 
 # =====================================================================
 # 18. 三方法比較
