@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""產生圖 3-2 韌體骨架與三種 SOC 估測方法之掛載關係（正式方塊圖）。
+"""產生圖 3-4 韌體骨架與三種 SOC 估測方法之掛載關係（正式方塊圖）。
 
 風格比照 _gen_ch3_arch.py（圖 3-1）；本機（樹莓派）無 Microsoft JhengHei，
 以 Noto Sans CJK TC 替代（同為黑體系，視覺一致）。
@@ -86,6 +86,6 @@ arrow(ax, (6.4, 3.0), (7.1, 3.0))
 arrow(ax, (10.4, 3.0), (11.1, 3.0))
 
 fig.tight_layout()
-fig.savefig(OUT / 'fig3-2.png', dpi=200, bbox_inches='tight', pad_inches=0.08, facecolor='white')
+fig.savefig(OUT / 'fig3-4.png', dpi=200, bbox_inches='tight', pad_inches=0.08, facecolor='white')
 plt.close(fig)
-print('saved fig3-2.png')
+print('saved fig3-4.png')

@@ -258,7 +258,7 @@ sidebar_note(s, [
 sidebar_note(s, [
     "本研究聚焦 SOC 估測",
     "SOH 列為未來工作（第六章）",
-    "單顆 NMC 2000 mAh、室溫、不做溫補",
+    "單顆鋰離子電池 2000 mAh、室溫、不做溫補",
 ], Inches(8.25), Inches(4.0), Inches(4.55), Inches(2.5), title="研究範圍界定", fill=RGBColor(0xFD,0xF3,0xE0), tcolor=GOLD)
 
 # =====================================================================
@@ -337,7 +337,7 @@ para(tf, "SOC 估測方法兩大類：", 16, True, NAVY, first=True, space_after
 para(tf, "直接計量法：庫倫計數、OCV 查表", 14, level=1, space_after=3)
 para(tf, "模型基礎法：卡爾曼濾波族（KF/EKF/UKF）、動態阻抗法", 14, level=1, space_after=8)
 para(tf, "本文 EKF 採一階 RC：狀態維度低、參數辨識易，"
-        "於單顆 NMC、室溫下足以支撐合理端電壓重建", 14, space_after=6)
+        "於單顆鋰離子電池、室溫下足以支撐合理端電壓重建", 14, space_after=6)
 para(tf, "商用 BMS IC（bq2x、ModelGauge）多採「庫倫＋OCV 週期修正」"
         "而非 EKF —— 正是 Flash/RAM/算力/成本的工程權衡", 14, color=RED, space_after=4)
 
@@ -375,7 +375,7 @@ data = [
     ["直流電源", "ITECH IT6302（CC-CV）"],
     ["電子負載", "IT8512A+（CC 模式）"],
     ["上位機", "Python orchestrator"],
-    ["受測電池", "NMC 2000 mAh，4.2/2.5 V"],
+    ["受測電池", "鋰離子 2000 mAh，4.2/2.5 V"],
 ]
 add_table(s, data, Inches(8.1), Inches(1.55), Inches(4.7), Inches(3.6),
           col_w=[1.5, 3.2], fs=13)
@@ -760,7 +760,7 @@ tf = add_text(s, Inches(0.75), Inches(1.45), Inches(5.6), Inches(0.5), anchor=MS
 r = tf.paragraphs[0].add_run(); r.text = "這份研究還有哪些限制"; _set(r, 18, True, WHITE)
 tf = add_text(s, Inches(0.8), Inches(2.15), Inches(5.55), Inches(3.9))
 for i, t in enumerate([
-    "只測了一顆 NMC 電池、室溫、沒做溫度補償",
+    "只測了一顆鋰離子電池、室溫、沒做溫度補償",
     "只做電量（SOC），還沒做健康度（SOH）——但已量到能分辨的老化訊號（41 輪掉約 4.6%）",
     "這顆電池「大電流也幾乎不掉電量」：對 EKF 有利、對動態阻抗卻是致命傷，結論不能直接套到別顆電池",
     "EKF 的參數跟電腦驗證用同一份資料（等於自己驗自己）；真正的公正驗證靠兩整輪實機實測",
