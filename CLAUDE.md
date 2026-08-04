@@ -39,6 +39,28 @@ The project is transitioning from a pure documentation/literature review phase i
 
 ## 今日總結
 
+### 2026/08/04（參考論文資料夾整理：檔名對齊文獻編號、補下載 7 篇合法公開文獻、建對照清單）
+
+#### ✅ 完成項目
+- **參考論文資料夾全面對齊 `_20260803` 版 33 篇參考文獻**：從 docx 抽出完整 [1]–[33] 書目逐篇比對，13 個既有 PDF（3 篇原始參考論文＋10 篇 arXiv 命名）全部以 `git mv` 更名為 `[編號]_第一作者_論文標題.pdf`，檔名可直接對照論文文獻編號
+- **刪除不相關檔案**：`State_of_Charge_Estimation_..._Multilayer_Neural_Networks.pdf`（論文自 2026/06/11 已移除資料驅動法／神經網路章節，該文不在 [1]–[33] 內）
+- **新下載 7 篇合法公開來源文獻**：[2] Xiong／[4] How（IEEE Access 開放取用）、[10] Chen & Rincon-Mora（Georgia Tech 作者官網自存版）、[14] He（MDPI 開放取用）、[21] Wan & van der Merwe（Harvard SEAS 課程公開託管）、[25] STM32G071 DS12232（DigiKey 託管之 ST 原檔）、[26] INA226 SBOS547A（TI 官網）；每份皆以 pypdf 讀第一頁驗證標題正確
+- **建立 `DOC/參考論文/參考文獻對照清單.md`**：33 篇逐條列出來源與取得狀態（已備齊 20／尚缺 13），缺的 13 篇附 DOI 與中原大學圖書館取得路徑（ScienceDirect／IOPscience／ASME／ECS）
+- 依使用者要求，論文檔案本身完全未動
+
+#### 🐛 問題與踩坑
+- **三個 OA 索引交叉查詢才問得出真相**：Unpaywall 只認出 3 篇、OpenAlex 同源結果一致、Semantic Scholar 多認出 [1] 與 [10]；但 [21] Wan & van der Merwe 三家都判 non-OA，實際上 Harvard SEAS 課程網站有公開 PDF——**索引 API 是起點不是終點，經典文獻仍需針對作者機構做定向搜尋**
+- **MDPI `www` 網域被 Akamai 擋 403、`res` 網域直通**：`www.mdpi.com/.../pdf` 帶 Referer 與完整瀏覽器 header 都 403，改用 `res.mdpi.com/energies/energies-04-00582/article_deploy/energies-04-00582.pdf` 一次成功
+- **IEEE Access 開放取用全文要走 ielx 路徑**：`stamp.jsp?arnumber=` 只回 HTML frame，`ieeexplore.ieee.org/ielx7/<pubid>/<issueid>/0<arnumber>.pdf` 才是真 PDF
+- **cs.unc.edu 的 Kalman 1960 公開託管已下線**（ASME 授權轉錄版，多年來的標準引用來源），實測整頁 404；MIT／CMU 幾個常見鏡像同樣 404，該篇最終無合法免費來源
+- **st.com 在本機環境完全不通**（curl 8 分鐘、PowerShell 200 秒皆逾時），Mouser 被 bot 防護擋；最後靠 DigiKey 託管的 ST 原檔取得 DS12232，但只有 Rev 1（2018），論文引用的是 Rev 5（2021）
+- **下載後必須驗證 PDF magic 與第一頁文字**：多次收到 301～6000 bytes 的 HTML 偽裝成 `.pdf`（404 頁、Access Denied 頁），`file` 指令加 pypdf 讀首頁是必要關卡
+
+#### 📋 待辦
+- 尚缺 13 篇付費文獻（[1][3][6][7][11][15][18][19][20][22][30][31][32]）待以中原大學圖書館電子資源下載，檔名照 `參考文獻對照清單.md` 放入即可對上編號
+- [25] STM32G071 datasheet 目前為 DS12232 Rev 1，若要與論文引用一致可自 st.com 下載 Rev 5 覆蓋同名檔
+- 論文既有待辦延續（封面姓名／指導教授佔位、方程式編輯器重排、作者英文拼音確認、圖 3-3 測試照片補入後重匯 PDF）
+
 ### 2026/08/03（論文 _20260803 進版：新增接線圖／測試流程圖／照片佔位、文獻 13→33 篇去 arXiv、全篇去 NMC、分頁保護）
 
 #### ✅ 完成項目
