@@ -53,7 +53,7 @@ box(ax, 6.0, 6.2, 3.2, 1.5,
 box(ax, 9.7, 6.2, 3.3, 1.5,
     [('STM32 + INA226', True, 12), ('Embedded estimator', False, 11)], 'mcu')
 box(ax, 4.15, 2.8, 3.6, 1.4,
-    [('DUT: Cell', True, 12.5), ('NMC 2000 mAh', False, 11)], 'dut')
+    [('DUT: Cell', True, 12.5), ('Li-ion 2000 mAh', False, 11)], 'dut')
 
 # host -> instruments
 arrow(ax, (2.3, 8.5), (2.3, 6.95), 'SCPI / USB')

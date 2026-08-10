@@ -39,6 +39,34 @@ The project is transitioning from a pure documentation/literature review phase i
 
 ## 今日總結
 
+### 2026/08/10（研討會投稿論文 _20260810：改以 TANET 官方範本為基底重建、移除中文摘要、文獻去 arXiv）
+
+#### ✅ 完成項目
+- **產出研討會投稿論文 `_20260810` 版**（`DOC/研討會報告/`，docx＋PDF，4 頁；原 `_20260722` 版與其 PDF 完全未動）：依使用者提供的 `refer/TANET_Format_Paper.docx`（IEEE 版式的 TANET 中文化範本）重建
+- **不是「改舊檔套新格式」，而是直接以範本為基底**：載入範本後保留其 `styles.xml`／`numbering.xml`／分節幾何，清空範例內容再把論文內容填回去，因此行高、間距、縮排、字級全部由範本具名樣式決定，非手寫近似值
+- **逆向抽出範本完整規格並照用**：A4、上 1.91／下 4.29／左右 1.29 cm；雙欄各 5040 twips、欄距 360；本文 `本文1` 10 pt／行高 228 auto（0.95 倍）／段後 6 pt／首行縮排 288 twips／兩端對齊／字距 −0.05 pt；`Abstract` 粗體 9 pt；`key words` 粗斜體 9 pt；`references` 8 pt／行高 180 exact
+- **中文摘要與中文關鍵詞全部移除**（範本本身即只有英文 Abstract），PDF 抽字驗證 `摘要`／`關鍵詞`／`鋰離子` 皆 0 次
+- **章節／表／圖／文獻編號全改為範本的 Word 自動編號欄位**：`標題 11` 自動羅馬數字＋小型大寫置中、`標題 21` 自動 A./B. 斜體靠左、`table head` 自動「TABLE I.」、`figure caption` 自動「Figure 1.」、`references` 自動「[1]」，在 Word 內增刪會自行重編
+- 內文交叉引用同步改 `Table I／II／III`、`Section I`；三條顯示方程式改 IEEE 慣例的置中＋右靠編號 (1)(2)(3) 並在內文引用
+- **11 篇參考文獻全部由 arXiv 預印本換成正式出處**（沿用論文 `_20260803` 版成果）：IECON／IEEE CCTA／IEEE ESL／Energies／IJRER／IEEE VPPC／ACC／J. Energy Storage／Sci. Rep./IEEE TII／IEEE TTE；驗證 [1]–[11] 全部有內文引用、零孤兒文獻
+- **修掉與 2026/08/03「全論文移除 NMC」不一致的殘留**：圖 1 方塊原寫 `NMC 2000 mAh` 改 `Li-ion 2000 mAh`（改 `figures/gen_fig_arch_en.py` 並重產 PNG），內文同步改「custom lithium-ion unit」
+- 逐頁 PDF 目視＋PyMuPDF 量測驗證；跨欄圖 2 正常橫跨整頁寬，分節結構為 5 節（標題單欄→雙欄→跨欄圖單欄→雙欄→尾段單欄）
+- 討論「研討會參考文獻是否要比照主論文 33 篇」：結論不需要，4 頁短篇 11 篇屬正常區間，硬補會產生孤兒文獻；已指出三處引用斷點（GITT 無出處、缺 Plett 2004 電池 EKF 奠基文獻、ECM 論述誤掛在 Zhao 靈敏度分析上）並建議補 3 篇成 14 篇，**使用者決定維持 11 篇不動**
+
+#### 🐛 問題與踩坑
+- **python-docx 沒有「插入到指定位置」API**：`doc.add_paragraph()` 一律落在 body 末端 sectPr 之前。修法是先 `add_paragraph()` 再用 `anchor.addprevious(par._p)` 把 XML 元素搬到目標錨點前，表格同理搬 `t._tbl`
+- **sectPr 語意方向容易搞反**：段落的 `sectPr` 定義的是「**結束於**該段落的那一節」，不是其後那節。跨欄圖因此實作成「圖前的最後一段掛 2 欄 sectPr、圖說段掛 1 欄 sectPr」，比 `add_section()` 少產生兩個多餘空段落
+- **範本 `equation` 樣式的 run 字型是 Symbol**：直接打字整行會變希臘字母亂碼，必須在 run 層覆寫 `w:rFonts` 四個屬性（ascii／hAnsi／cs／eastAsia）為 Times New Roman
+- **範本樣式名是 CJK、styleId 卻是數字**（`標題 11`→id `11`、`內文1`→id `1`、`本文1`→id `13`），python-docx 的 `p.style = ...` 要用 **name** 不是 id，讀 styles.xml 時兩者都要印出來對照
+- **`element.itertext()` 會讀到重複文字**（範本 run 結構特殊），驗證段落內容要用 `paragraph.text`（只收 `w:r/w:t` 直屬子項）
+- **版面留白不能目視估**：目視以為頁 2 右欄缺約 4 cm，改用 PyMuPDF 逐頁量 block bbox 對文字區下緣，實測只有 1.45 cm，屬雙欄排版常態，白改一輪版面
+- **範本刪除範例內容後圖片關聯會變孤兒**：先掃 `a:blip` 收 rId 再 `doc.part.drop_rel(rId)`，才不會留 24 KB 未引用的 image1.png
+
+#### 📋 待辦
+- 表格標題「TABLE II.」與標題文字間的 tab 空隙為範本 numbering 原生行為（IEEE 官方範本亦如此），若要改成單一空白需調 `w:suff`
+- 送印前確認作者英文拼音（現用威妥瑪 Ta-Chia Hung；範本風格可改漢語拼音 Da-Jia Hong）
+- 論文既有待辦延續（封面姓名／指導教授佔位、方程式編輯器重排、圖 3-3 測試照片補入後重匯 PDF、13 篇付費文獻待圖書館下載）
+
 ### 2026/08/04（參考論文資料夾整理：檔名對齊文獻編號、補下載 7 篇合法公開文獻、建對照清單）
 
 #### ✅ 完成項目
