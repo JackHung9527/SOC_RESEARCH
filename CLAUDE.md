@@ -39,6 +39,27 @@ The project is transitioning from a pure documentation/literature review phase i
 
 ## 今日總結
 
+### 2026/08/13（研討會投稿論文 _2026081002：表 I 移到跨欄圖之後，消除頁 3 右上大片空白）
+
+#### ✅ 完成項目
+- **產出 `_2026081002` 版**（`DOC/研討會報告/`，docx＋PDF，4 頁；`_20260810` 與 `_20260722` 兩版時間戳未變、完全未動）：把 **Table I 從跨欄 Figure 2 之前移到之後**
+- **解決的問題**：原版頁 3 頂端只有 Table I 佔左欄，**右上約 8.9 × 12 cm 全空**。成因是該段雙欄區裡只剩一張表，Word 的欄平衡把它全塞進左欄、右欄自然空掉。把跨欄圖提到前面後，頁 3 頂端變成滿版的 Figure 2，Table I 落到圖下方雙欄區且右欄有 4.2 節內文接續
+- 量測驗證：頁 3 右欄起始由 y=563 pt 提前到 y=452 pt；四頁的欄底留白分別為 0.06／0.22／0.26／6.93 cm，無異常
+- **順手改良 `add_figure(span=True)` 的分節實作**：原本會先造一個 spacer 空段落來掛 2 欄 `sectPr`；移動後跨欄圖緊接內文，該 spacer 會在頁 2 底部留下多餘空行。改成直接把 `sectPr` 掛在**前一個內文段落**上，並加保護——前一個元素若是表格就退回用 spacer
+- 驗證與舊版逐項一致：4 頁、無中文摘要殘留、無 NMC、[1]–[11] 全部有內文引用、`TABLE I/II/III` 與 `Figure 1/2` 編號與所在頁均正確
+
+#### 🐛 問題與踩坑
+- **`sectPr` 掛錯位置會把表格推進錯的節**：段落的 `sectPr` 定義的是「結束於該段落的那一節」，若前一個元素是表格而把 `sectPr` 掛到表格的標題段上，表格本身會被排除在該節之外。故 `_last["par"]` 在 `add_table()` 結束時必須重設為 `None`
+- **Word 雙欄的欄平衡是這類空白的通因**：不可分割的浮動體（表格、圖）若獨占一段雙欄區，Word 會把它擠在左欄、右欄留空。解法是讓該雙欄區「不要只有一個浮動體」——把跨欄圖移到它前面，或讓後續內文能流進來
+- **本機 `git status` 顯示的 `??` 不等於會被 commit，但也不等於被 ignore**：`git check-ignore -v` 對 `DOC/離校程序/` 回報命中 `.gitignore:29`，實際上第 29 行是註解 `# Office 暫存鎖檔`、pattern 欄位是空的，屬誤導輸出。**權威判斷要用 `git add -A --dry-run`**，它明確列出那 10 份離校文件都會被收進來
+
+- **`DOC/離校程序/` 10 份個人行政文件一併納入版控**：該資料夾未被 .gitignore 排除，而本 repo 為 public，已就「推上去不可逆、即使刪除仍可能被快取或索引」提出說明，**使用者確認照常提交上傳**
+- **`my-claude-extensions` repo 分岔已解**：本機 85ebcf7（stm32-build-flash）與遠端 bf9493e（auto-git-commit）改不同檔案，以 `merge --no-ff` 併入（a57f96a）後推送，兩邊內容均保留
+- **經驗回寫 `auto-git-commit` skill**（commit be2c71c）：新增「`git check-ignore` 輸出會誤導、判斷 `add -A` 實際範圍只能用 `--dry-run`、public repo 遇個人文件要先查可見性並交回使用者決定」一條，作為硬規則「一律 add -A 不挑檔」的邊界保護
+
+#### 📋 待辦
+- 研討會論文既有待辦延續（表格標題 tab 空隙、作者英文拼音、內文「(Table I); Fig. 2」引用順序與版面實體順序相反，IEEE 合規但可調）
+
 ### 2026/08/10（研討會投稿論文 _20260810：改以 TANET 官方範本為基底重建、移除中文摘要、文獻去 arXiv）
 
 #### ✅ 完成項目
@@ -61,6 +82,9 @@ The project is transitioning from a pure documentation/literature review phase i
 - **`element.itertext()` 會讀到重複文字**（範本 run 結構特殊），驗證段落內容要用 `paragraph.text`（只收 `w:r/w:t` 直屬子項）
 - **版面留白不能目視估**：目視以為頁 2 右欄缺約 4 cm，改用 PyMuPDF 逐頁量 block bbox 對文字區下緣，實測只有 1.45 cm，屬雙欄排版常態，白改一輪版面
 - **範本刪除範例內容後圖片關聯會變孤兒**：先掃 `a:blip` 收 rId 再 `doc.part.drop_rel(rId)`，才不會留 24 KB 未引用的 image1.png
+- **`git push` 連續失敗，真因是公司兩台 proxy 走錯（當日稍晚排查）**：git 報 `schannel: server closed abruptly (missing close_notify)`，實際上是代理回 **403 Forbidden** 加 `Connection: close` 後把 TLS 連線硬關，schannel 訊息只是表象。公司系統代理是 `rdproxy`（瀏覽器／PowerShell 走這台、通），但 `HTTP_PROXY`／`HTTPS_PROXY` 環境變數指向 `fspproxy`（git 走這台、被擋）。改用 `git -c http.proxy=http://rdproxy...:8080 push` 一次就通
+- **診斷過程中兩個「假證據」害我先誤判成網路斷線**：`Test-NetConnection` 回 False 是被工具沙箱擋；`curl.exe` 回 `http=000` 是它用自帶 CA bundle、不信任公司閘道 TLS 攔截用的根憑證（連 example.com 都失敗）。真正定位靠 `GIT_CURL_VERBOSE=1`，一跑就看到 `Proxy-Agent: IWSS` 與 `HTTP/1.1 403 Forbidden`
+- **經驗已回寫 `auto-git-commit` skill**（commit c58b666）：新增 `scripts/git-proxy-auto.ps1`（依當下 Windows 系統代理自動帶對的 proxy，家用網路則主動把 `http.proxy` 設空字串蓋掉殘留環境變數）＋ SKILL.md 新增「網路環境切換（公司代理／家用網路）」章節與踩坑筆記。刻意**不設全域 proxy**，因為會在公司與家用網路間切換，設死了回家就連不上
 
 #### 📋 待辦
 - 表格標題「TABLE II.」與標題文字間的 tab 空隙為範本 numbering 原生行為（IEEE 官方範本亦如此），若要改成單一空白需調 `w:suff`
