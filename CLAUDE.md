@@ -39,6 +39,32 @@ The project is transitioning from a pure documentation/literature review phase i
 
 ## 今日總結
 
+### 2026/08/31（離校程序論文電子檔：目錄收錄自身頁碼、依他人論文重排三份目錄版式、章標題置中）
+
+#### ✅ 完成項目
+- **目錄頁自己進目錄**（`DOC/離校程序/論文電子檔/鋰電池SOC估測方法之比較與嵌入式實作.docx` 就地覆蓋，各階段備份於 scratchpad）：「目錄」標題段落補 `outlineLvl=0`，主目錄新增「目錄　IV」一條
+- **連帶修好圖表目錄兩條 stale 條目**：更新後發現舊有的 `List of Figure`／`List of Table` 消失，查出正文標題早已改成中文「圖目錄」「表目錄」且同樣缺 `outlineLvl`，兩條純屬欄位快取殘留；補上大綱層級後恢復為正確文字與正確頁碼（VII／VIII）。主目錄章層級由 12 條變 13 條、總條目 71 → 73（13 章層級＋28 節＋32 小節）
+- **依使用者提供的他人論文 `論文電子檔/格式參考/fb260831115520.pdf` 重排三份目錄版式**：用 PyMuPDF 逐 span 抽 x0／字型／字級逆向該檔規格（正文左界 90 pt、章條目縮排 0、節 24 pt、圖表 48 pt 且續行 72 pt、全部 12 pt），據此改寫四個 toc 樣式——`toc 1` 左縮排 0＋粗體、`toc 2` 240→480、`toc 3` 480→960、`toc 4` 改 `left=1440 hanging=480`，四者字級一律 11→12 pt，節／小節／圖表條目改為不粗體
+- **章標題與參考文獻改置中**：`Heading 1` 樣式加 `jc=center`（涵蓋六個章標題），參考文獻標題（`Normal` 配 `outlineLvl=0`，不吃 Heading 1 樣式）另外單獨加；節與小節標題維持靠左未動
+- 全程只交付 docx，PDF 由使用者自行匯出；驗證用的局部 PDF 只匯到 scratchpad，未在專案內留下任何 PDF。全文維持 67 頁，目錄 3 頁（IV–VI）、圖目錄 1 頁（VII）、表目錄 1 頁（VIII），加大縮排與字級後未溢頁
+
+#### 🐛 問題與踩坑
+- **欄位碼正確不代表目錄會收**：直覺先懷疑 `TOC \o "1-3"` 的層級設定，但抽出來看本來就是對的。真因是「目錄」標題是 `Normal` 配 direct formatting（24 pt 粗體），**沒有 `outlineLvl`**，在 Word 眼中只是一般內文。與 8/26 同一個根因，**查錯順序仍應是「欄位碼」與「段落大綱層級」兩邊都讀過再下判斷**
+- **目錄裡看得到的條目 ≠ 正文真有該標題**：`List of Figure`／`List of Table` 兩條在正文完全不存在（全檔 XML 搜尋只命中目錄超連結本身），是標題改中文後留下的 stale field result，一按更新就**靜默消失**、不會有任何錯誤。教訓：**更新欄位前先比對「現有 toc 條目」與「正文實際有大綱層級的標題」，更新後再數一次條目數**，否則會無聲掉條目
+- **Word 更新 TOC 會把標題的 direct character formatting 複製進條目**：本論文節／小節標題是 `Normal` 配 direct 粗體、圖說標號也是，所以每次 `TablesOfContents.Update()` 後 toc 2/3/4 條目都帶 `<w:b/>`，而 **direct formatting 優先於樣式，改樣式設成不粗體壓不掉**。正確順序是：改 styles.xml → COM 全量 `Update()` → 腳本剝掉 toc 2/3/4 **run 層**的 `<w:b/>`／`<w:bCs/>`（本次共 185 處）→ COM 只跑 `UpdatePageNumbers()`（只刷頁碼、不重建條目，不會把粗體加回來）→ Save。副作用：使用者若在 Word 按 F9 全部更新，粗體會回來
+- **判斷他人 PDF 的字體粗細不能靠肉眼**：PyMuPDF 對 CJK 字型（`DFKaiShu-SB-Estd-BF`）的 bold flag 一律回 False，章條目與節條目看起來都像標楷體。真正的證據在同一行的 Latin run——章條目的點狀引線是 `TimesNewRomanPS-BoldMT`、節條目是 `TimesNewRomanPSMT`，字型名直接分出粗細
+- **`<w:b>` 判斷粗體要讀 `w:val`**：沿用舊教訓，`<w:b w:val="0"/>` 是「不粗體」，只看標籤存在與否會誤判。本次剝除腳本一律排除 `val` 為 `0`／`false` 者
+- **本機 python 環境變了**：舊筆記記的 `C:\Espressif\tools\python\python.exe` 已不存在（只剩 `v5.5.4/venv`）。目前可用的是 `C:\Users\jackhung\AppData\Local\Programs\Python\Python312\python.exe`，且 python-docx／PyMuPDF(fitz)／pypdf 都在，pdfplumber 沒有
+- **PyMuPDF 存檔不吃 Git Bash 的 `/c/...` 路徑**，`fz_save_pixmap_as_png` 直接 `cannot open file`，要改用 Windows 反斜線絕對路徑
+- **Word COM 本次全程可用**，`ExportAsFixedFormat` 加 From／To 只匯前 12 頁與第 10–14 頁，秒級完成，不再像整份 67 頁那樣逾時——**驗證版面只需匯出相關頁即可，不必整本出 PDF**
+- 每次 COM 收尾都以「啟動前後的 WINWORD PID 差集」辨識並終止自己開的隱形 Word，避免誤殺使用者自己開的視窗
+
+#### 📋 待辦
+- 三個前置頁標題「目錄／圖目錄／表目錄」為 24 pt，參考檔是 20 pt；因摘要／Abstract／Acknowledgement 也是 24 pt，本次未動，若要統一需一併決定其他前置頁標題
+- 節／小節標題目前維持靠左，若也要置中需另外指定
+- 若要讓「節、小節、圖表條目不粗體」在 F9 全部更新後仍成立，得把節標題的粗體由 direct formatting 改成具名樣式（樣式定義的粗體不會被 TOC 複製），會動到 60 個標題段落，本次未做
+- 論文既有待辦延續（表 4-4 圖說缺字、第二～四章 8 個未編號表格未進表目錄、第四章從 4.0 起編、封面姓名／指導教授佔位、方程式編輯器重排、圖 3-3 測試照片補入後重匯 PDF、13 篇付費文獻待圖書館下載）
+
 ### 2026/08/26（離校程序論文電子檔：目錄補齊節與小節層級，圖表目錄改掛獨立樣式）
 
 #### ✅ 完成項目
